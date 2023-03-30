@@ -1,0 +1,42 @@
+[package]
+name = "love"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+# 异步编程库
+tokio = {version = "1.20.0", features = ["full"]}
+# web框架
+axum = {version = "0.6.4", features = ["headers", "multipart"]}
+# 静态路由和跨域
+tower= "0.4.13"
+tower-http = { version = "0.3.5", features = ["fs", "cors"] }
+# json序列化库
+serde = {version = "1.0.140", features = ['derive']}
+serde_json = "1.0.91"
+# 下面两个都是日志库
+log = "0.4"
+env_logger = "0.10.0"
+# https支持
+hyper-tls = "0.5"
+# 异步函数测试库
+actix-rt = "2.8.0"
+# 错误处理
+anyhow = "1.0"
+thiserror = "1.0"
+# 加密库
+rust-crypto = "^0.2"
+# mongo数据库
+mongodb = { version = "2.3.1", default-features = false, features = ["tokio-runtime"] }
+# 修复异步数据库查询问题
+futures = "0.3"
+# uuid生成
+uuid = { version = "1.3.0", features = ["v4"] }
+# 时间库
+chrono = "0.4.23"
+# 读取yaml文件
+serde_yaml = "0.9.19"
+# 图片处理
+image = "0.24.6"

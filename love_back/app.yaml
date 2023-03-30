@@ -1,0 +1,4 @@
+secret: xxx
+mongo: mongodb://127.0.0.1:27017
+man_avatar: /static/0c5c8ab6-7224-4098-b98b-a6c8daa5ed11.jpg
+woman_avatar: /static/6a807d8f-c0fe-4d9d-b1fd-30a836032e4b.jpg
