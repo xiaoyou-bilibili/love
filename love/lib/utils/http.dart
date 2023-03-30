@@ -1,11 +1,12 @@
 import 'package:dio/dio.dart';
 
+// 服务器地址
 const String host = "https://xxx.com";
 
 class HttpClient {
   Dio dio = Dio();
   final Map<String, String> _headers = {
-    "token": "xxx"
+    "token": "xxx" // 请求token
   };
 
   dynamic responseInterceptor(Response response) {
