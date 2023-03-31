@@ -125,7 +125,7 @@ class _HomeFragmentState extends State<HomeFragment> {
               );
             }
             //请求完成
-            return const Text("加载中。。");
+            return const BrnPageLoading();
           }
         )
       ),
