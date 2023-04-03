@@ -61,7 +61,7 @@ class _TaskFragmentState extends State<TaskFragment> with TickerProviderStateMix
       return AlertDialog(
         contentPadding: const EdgeInsets.all(2),
         title: const Text("添加任务"),
-        content: SizedBox(height: 200, child: Column(children: [
+        content: SizedBox(height: 200, width: 500, child: Column(children: [
           BrnTextInputFormItem(
             title: "任务名称",
             hint: "任务名称",
@@ -73,6 +73,7 @@ class _TaskFragmentState extends State<TaskFragment> with TickerProviderStateMix
             btnsTxt: _tags,
             value: _tag,
             selectBtnList: _selectStatus,
+            isBtnsScroll: true,
             prefixIconType: BrnPrefixIconType.add,
             onBtnSelectChanged: (index){
               _tag = _tags[index];

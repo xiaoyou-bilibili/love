@@ -38,7 +38,7 @@ class ComponentItemDynamic extends StatelessWidget {
       String cache = image.replaceAll("static/", "static/compose/");
       images.add(CachedNetworkImage(
         imageUrl: "$host/$cache",
-        placeholder: (context, url) => const CircularProgressIndicator(),
+        placeholder: (context, url) => const Center(child: SizedBox(width: 50, height: 50, child: CircularProgressIndicator())),
         errorWidget: (context, url, error) => const Icon(Icons.error),
       ));
     }
@@ -69,8 +69,7 @@ class ComponentItemDynamic extends StatelessWidget {
               scrollDirection: Axis.vertical,
               shrinkWrap: true,
               children: images
-          ),
-          ),
+          )),
         ])
     );
   }

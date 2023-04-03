@@ -126,7 +126,7 @@ class _AlbumFragmentFragmentState extends State<AlbumFragment> {
                 },
               );
             }
-            return const Text("加载中");
+            return const BrnPageLoading();
           },
         )
       ),

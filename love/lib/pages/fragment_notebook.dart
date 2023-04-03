@@ -1,3 +1,4 @@
+import 'package:bruno/bruno.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:love/component/item_notebook.dart';
@@ -63,7 +64,7 @@ class _NotebookFragmentState extends State<NotebookFragment> {
                 },
               );
             }
-            return const Text("加载中");
+            return const BrnPageLoading();
           },
         )
       ),
