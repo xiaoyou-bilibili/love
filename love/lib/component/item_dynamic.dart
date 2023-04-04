@@ -12,7 +12,8 @@ class ComponentItemDynamic extends StatelessWidget {
 
   late BuildContext _context;
 
-  void _open_image() {
+  // 打开图片
+  void _openImage() {
     List<String> urls = [];
     for(var images in info.images) {
       urls.add("$host/$images");
@@ -28,6 +29,14 @@ class ComponentItemDynamic extends StatelessWidget {
     ));
   }
 
+  // 打开评论
+  void _openComment(String id) {
+    BrnMiddleInputDialog(
+        title: "评论内容",
+        hintText: '输入评论内容',
+    ).show(_context);
+  }
+
   @override
   Widget build(BuildContext context) {
     _context = context;
@@ -38,6 +47,7 @@ class ComponentItemDynamic extends StatelessWidget {
       String cache = image.replaceAll("static/", "static/compose/");
       images.add(CachedNetworkImage(
         imageUrl: "$host/$cache",
+        fit: BoxFit.fitHeight, // 设置图片为正方形
         placeholder: (context, url) => const Center(child: SizedBox(width: 50, height: 50, child: CircularProgressIndicator())),
         errorWidget: (context, url, error) => const Icon(Icons.error),
       ));
@@ -52,13 +62,15 @@ class ComponentItemDynamic extends StatelessWidget {
           Row(children: [
             ComponentAvatar(info.sex),
             const SizedBox(width: 10),
-            Text(DateTimeFormatter.formatDate(timestamp, 'yyyy年MM月dd日'), style: TextStyle(fontSize: 20))
+            Text(DateTimeFormatter.formatDate(timestamp, 'yyyy年MM月dd日'), style: const TextStyle(fontSize: 20)),
+            Flexible(child: Container()),
+            InkWell(child: const Icon(Icons.comment, color: Colors.grey, size: 20), onTap: ()=>_openComment(info.id)), // 点击评论
           ]),
           const SizedBox(height: 10),
           Text(info.content),
           const SizedBox(height: 10),
           InkWell(
-            onTap: _open_image,
+            onTap: _openImage,
             child: GridView(
               gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: 3,
@@ -70,7 +82,21 @@ class ComponentItemDynamic extends StatelessWidget {
               shrinkWrap: true,
               children: images
           )),
-        ])
+          Container(
+            margin: const EdgeInsets.all(5),
+            padding: const EdgeInsets.all(5),
+            width: double.maxFinite,
+            color: const Color.fromRGBO(248, 248, 248, 1),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: const [
+                Text("小老弟：天气真不错", style: TextStyle(fontSize: 14)),
+                Text("小老妹：哈哈哈哈", style: TextStyle(fontSize: 14))
+              ],
+            ),
+          )
+        ]),
+        // 评论区
     );
   }
 }
