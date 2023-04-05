@@ -4,11 +4,12 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class Storage {
   // 共享存储
-  static final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
+  static final Future<SharedPreferences> _prefs =
+      SharedPreferences.getInstance();
 
   static const String _keySex = "sex";
   static int _sex = 0;
-  static AppSetting _appSetting = AppSetting(man_avatar: '', woman_avatar: '');
+  static AppSetting _appSetting = AppSetting(manAvatar: '', womanAvatar: '');
 
   // 获取应用设置
   static AppSetting getAppSetting() {
@@ -18,8 +19,8 @@ class Storage {
   // 设置应用
   static void setAppSetting(AppSetting setting) {
     _appSetting = setting;
-    _appSetting.woman_avatar = "$host${_appSetting.woman_avatar}";
-    _appSetting.man_avatar = "$host${_appSetting.man_avatar}";
+    _appSetting.womanAvatar = "$host${_appSetting.womanAvatar}";
+    _appSetting.manAvatar = "$host${_appSetting.manAvatar}";
   }
 
   // 同步获取性别

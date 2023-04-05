@@ -1,8 +1,4 @@
 // 倒计时组件
-import 'dart:convert';
-
-import 'package:flutter/cupertino.dart';
-
 class CountDown {
   String id;
   String title;
@@ -59,14 +55,8 @@ class TaskInfo {
   TaskInfo(this.id, this.title, this.tag, this.done, this.sex, this.timestamp);
 
   factory TaskInfo.fromJson(Map<String, dynamic> json) {
-    return TaskInfo(
-        json['id'],
-        json['title'],
-        json['tag'],
-        json['done'],
-        json['sex'],
-        json['timestamp']
-    );
+    return TaskInfo(json['id'], json['title'], json['tag'], json['done'],
+        json['sex'], json['timestamp']);
   }
 }
 
@@ -96,7 +86,13 @@ class AddTaskReq {
   AddTaskReq(this.title, this.tag, this.sex, this.timestamp);
 
   Map toJson() {
-    Map map = {"title": title, "tag": tag, "done": false, "sex": sex, "timestamp": timestamp};
+    Map map = {
+      "title": title,
+      "tag": tag,
+      "done": false,
+      "sex": sex,
+      "timestamp": timestamp
+    };
     return map;
   }
 }
@@ -160,8 +156,13 @@ class NoteInfo {
   }
 
   Map toJson() {
-    Map<String, dynamic> info = {"title": title, "content": content, "timestamp": timestamp, "sex": sex};
-    if(id != "") {
+    Map<String, dynamic> info = {
+      "title": title,
+      "content": content,
+      "timestamp": timestamp,
+      "sex": sex
+    };
+    if (id != "") {
       info["id"] = id;
     }
     return info;
@@ -170,19 +171,76 @@ class NoteInfo {
 
 // 应用设施
 class AppSetting {
-  String man_avatar;
-  String woman_avatar;
+  String manAvatar;
+  String womanAvatar;
 
-  AppSetting({required this.man_avatar, required this.woman_avatar});
+  AppSetting({required this.manAvatar, required this.womanAvatar});
 
   factory AppSetting.fromJson(Map<String, dynamic> json) {
-    return AppSetting(man_avatar: json['man_avatar'], woman_avatar: json['woman_avatar']);
+    return AppSetting(
+        manAvatar: json['man_avatar'], womanAvatar: json['woman_avatar']);
   }
 
   Map toJson() {
     return {
-      "man_avatar": man_avatar,
-      "woman_avatar": woman_avatar,
+      "man_avatar": manAvatar,
+      "woman_avatar": womanAvatar,
     };
+  }
+}
+
+// 评论
+class CommentInfo {
+  String id;
+  String relationId;
+  String content;
+  int timestamp;
+  int sex;
+
+  CommentInfo(
+      {this.id = "",
+      required this.relationId,
+      required this.content,
+      required this.timestamp,
+      required this.sex});
+
+  factory CommentInfo.fromJson(Map<String, dynamic> json) {
+    return CommentInfo(
+        id: json['id'],
+        relationId: json['relation_id'],
+        content: json['content'],
+        timestamp: json['timestamp'],
+        sex: json['sex']);
+  }
+
+  Map toJson() {
+    Map<String, dynamic> info = {
+      "relation_id": relationId,
+      "content": content,
+      "timestamp": timestamp,
+      "sex": sex
+    };
+    if (id != "") {
+      info["id"] = id;
+    }
+    return info;
+  }
+}
+
+//动态评论
+class DynamicComment {
+  DynamicInfo dynamicInfo;
+  List<CommentInfo> comments;
+
+  DynamicComment({required this.dynamicInfo, required this.comments});
+
+  factory DynamicComment.fromJson(Map<String, dynamic> json) {
+    List<CommentInfo> commentList = [];
+    for (var item in json['comments']) {
+      commentList.add(CommentInfo.fromJson(item));
+    }
+    return DynamicComment(
+        dynamicInfo: DynamicInfo.fromJson(json['dynamic']),
+        comments: commentList);
   }
 }

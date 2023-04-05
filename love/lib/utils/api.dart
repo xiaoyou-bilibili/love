@@ -45,7 +45,7 @@ class ApiService {
   }
 
   // 更新任务
-  static Future<void>  updateTask(UpdateTaskReq body) async {
+  static Future<void> updateTask(UpdateTaskReq body) async {
     await _client.put("$base/task", body);
   }
 
@@ -56,11 +56,11 @@ class ApiService {
   }
 
   // 获取动态列表
-  static Future<List<DynamicInfo>> getDynamicList() async {
-    List<DynamicInfo> list = [];
+  static Future<List<DynamicComment>> getDynamicList() async {
+    List<DynamicComment> list = [];
     List<dynamic> data = await _client.get("$base/dynamic");
     for (var item in data) {
-      list.add(DynamicInfo.fromJson(item));
+      list.add(DynamicComment.fromJson(item));
     }
     return list;
   }
@@ -87,7 +87,7 @@ class ApiService {
 
   // 获取具体某个笔记
   static Future<NoteInfo> getNote(String id) async {
-    Map<String, dynamic> data = await  _client.get("$base/note/$id");
+    Map<String, dynamic> data = await _client.get("$base/note/$id");
     return NoteInfo.fromJson(data);
   }
 
@@ -99,9 +99,11 @@ class ApiService {
   // 文件上传
   static Future<String> uploadFile(XFile image) async {
     var bytes = await image.readAsBytes();
-    String data = await _client.postFrom("$base/file/upload", FormData.fromMap({
-        "file": MultipartFile.fromBytes(bytes, filename: image.name),
-    }));
+    String data = await _client.postFrom(
+        "$base/file/upload",
+        FormData.fromMap({
+          "file": MultipartFile.fromBytes(bytes, filename: image.name),
+        }));
     return data;
   }
 
@@ -110,6 +112,9 @@ class ApiService {
     Map<String, dynamic> data = await _client.get("$base/app");
     return AppSetting.fromJson(data);
   }
+
+  // 添加评论
+  static Future<void> addComment(CommentInfo body) async {
+    _client.post("$base/comment", body);
+  }
 }
-
-

@@ -46,7 +46,6 @@ class MyApp extends StatelessWidget {
   }
 }
 
-
 class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key, required this.title});
 
@@ -72,24 +71,24 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   void initState() {
     ApiService.getAppSetting().then((value) => {
-      debugPrint("应用设置 ${jsonEncode(value)}"),
-      Storage.setAppSetting(value)
-    });
+          debugPrint("应用设置 ${jsonEncode(value)}"),
+          Storage.setAppSetting(value)
+        });
     Storage.getSex().then((value) => {
-      debugPrint("用户性别 $value"),
-      if(value == 0) {
-        BrnDialogManager.showMoreButtonDialog(context,
-            title: "设置性别",
-            actions: ['男', '女'],
-            barrierDismissible: false,
-            message: "检测到你第一次使用，请设置性别",
-            indexedActionClickCallback: (index) => {
-              Storage.setSex(index+1),
-              Navigator.of(context).pop(true) //关闭对话框
+          debugPrint("用户性别 $value"),
+          if (value == 0)
+            {
+              BrnDialogManager.showMoreButtonDialog(context,
+                  title: "设置性别",
+                  actions: ['男', '女'],
+                  barrierDismissible: false,
+                  message: "检测到你第一次使用，请设置性别",
+                  indexedActionClickCallback: (index) => {
+                        Storage.setSex(index + 1),
+                        Navigator.of(context).pop(true) //关闭对话框
+                      })
             }
-        )
-      }
-    });
+        });
     super.initState();
   }
 
@@ -101,7 +100,7 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     // 根据下面的tab选择显示不同的页面
-    switch(_index) {
+    switch (_index) {
       case 0:
         fragment = HomeFragment(_key);
         break;
@@ -144,28 +143,48 @@ class _MyHomePageState extends State<MyHomePage> {
         items: const <BubbleBottomBarItem>[
           BubbleBottomBarItem(
               backgroundColor: Colors.red,
-              icon: Icon(Icons.home, color: Colors.black,),
-              activeIcon: Icon(Icons.home, color: Colors.red,),
-              title: Text("主页")
-          ),
+              icon: Icon(
+                Icons.home,
+                color: Colors.black,
+              ),
+              activeIcon: Icon(
+                Icons.home,
+                color: Colors.red,
+              ),
+              title: Text("主页")),
           BubbleBottomBarItem(
               backgroundColor: Colors.deepPurple,
-              icon: Icon(Icons.check_box, color: Colors.black,),
-              activeIcon: Icon(Icons.check_box, color: Colors.deepPurple,),
-              title: Text("计划")
-          ),
+              icon: Icon(
+                Icons.check_box,
+                color: Colors.black,
+              ),
+              activeIcon: Icon(
+                Icons.check_box,
+                color: Colors.deepPurple,
+              ),
+              title: Text("计划")),
           BubbleBottomBarItem(
               backgroundColor: Colors.indigo,
-              icon: Icon(Icons.photo, color: Colors.black,),
-              activeIcon: Icon(Icons.photo, color: Colors.indigo,),
-              title: Text("动态")
-          ),
+              icon: Icon(
+                Icons.photo,
+                color: Colors.black,
+              ),
+              activeIcon: Icon(
+                Icons.photo,
+                color: Colors.indigo,
+              ),
+              title: Text("动态")),
           BubbleBottomBarItem(
               backgroundColor: Colors.green,
-              icon: Icon(Icons.edit_document, color: Colors.black,),
-              activeIcon: Icon(Icons.edit_document, color: Colors.green,),
-              title: Text("笔记")
-          ),
+              icon: Icon(
+                Icons.edit_document,
+                color: Colors.black,
+              ),
+              activeIcon: Icon(
+                Icons.edit_document,
+                color: Colors.green,
+              ),
+              title: Text("笔记")),
           // BubbleBottomBarItem(
           //     backgroundColor: Colors.green,
           //     icon: Icon(Icons.people, color: Colors.black,),

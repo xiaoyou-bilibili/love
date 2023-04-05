@@ -51,6 +51,8 @@ dependencies:
   markdown_editor_plus: ^0.2.13
   # 图片缓存
   cached_network_image: ^3.2.3
+  # 启动url
+  url_launcher: ^6.1.10
 
 
 dev_dependencies:

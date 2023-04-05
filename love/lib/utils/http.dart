@@ -1,7 +1,7 @@
 import 'package:dio/dio.dart';
 
 // 服务器地址
-const String host = "http://172.17.170.255:3000";
+const String host = "http://172.17.165.8:3000";
 
 class HttpClient {
   Dio dio = Dio();
@@ -26,25 +26,36 @@ class HttpClient {
 
   // 发送get请求
   Future<dynamic> get(String url) async {
-    Response response = await dio.get(host+url, options: Options(headers: _headers));
+    Response response =
+        await dio.get(host + url, options: Options(headers: _headers));
     return responseInterceptor(response);
   }
 
   // 发送post请求
   Future<dynamic> post(String url, dynamic body) async {
-    Response response = await dio.post(host+url, data: body, options: Options(contentType: Headers.jsonContentType, headers: _headers));
+    Response response = await dio.post(host + url,
+        data: body,
+        options:
+            Options(contentType: Headers.jsonContentType, headers: _headers));
     return responseInterceptor(response);
   }
 
   // 发送post form请求
   Future<dynamic> postFrom(String url, dynamic body) async {
-    Response response = await dio.post(host+url, data: body, options: Options(contentType: Headers.multipartFormDataContentType, headers: _headers));
+    Response response = await dio.post(host + url,
+        data: body,
+        options: Options(
+            contentType: Headers.multipartFormDataContentType,
+            headers: _headers));
     return responseInterceptor(response);
   }
 
   // 发送put请求
   Future<dynamic> put(String url, dynamic body) async {
-    Response response = await dio.put(host+url, data: body, options: Options(contentType: Headers.jsonContentType, headers: _headers));
+    Response response = await dio.put(host + url,
+        data: body,
+        options:
+            Options(contentType: Headers.jsonContentType, headers: _headers));
     return responseInterceptor(response);
   }
 }
