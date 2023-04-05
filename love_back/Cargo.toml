@@ -40,3 +40,5 @@ chrono = "0.4.23"
 serde_yaml = "0.9.19"
 # 图片处理
 image = "0.24.6"
+# utf8截取库
+utf8_slice = "1.0.0"

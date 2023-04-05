@@ -116,3 +116,23 @@ pub struct AppSetting {
     pub man_avatar: String,   // 男性头像
     pub woman_avatar: String, // 女性头像
 }
+
+// 评论信息
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct CommentInfo {
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub _id: Option<ObjectId>, // object id
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub id: Option<String>, // 评论id
+    pub relation_id: String, // 关联的id，包括动态/笔记等
+    pub content: String,     // 评论内容
+    pub timestamp: i64,      // 时间戳
+    pub sex: i32,            // 性别
+}
+
+// 新版动态
+#[derive(Debug, Serialize, Deserialize)]
+pub struct DynamicComment {
+    pub dynamic: DynamicInfo, // 动态信息
+    pub comments: Vec<CommentInfo>, // 评论信息
+}

@@ -1,4 +1,4 @@
-secret: xxx
+secret: xiaoyou
 mongo: mongodb://127.0.0.1:27017
-man_avatar: /static/0c5c8ab6-7224-4098-b98b-a6c8daa5ed11.jpg
-woman_avatar: /static/6a807d8f-c0fe-4d9d-b1fd-30a836032e4b.jpg
+man_avatar: /static/396f52da-6410-4df1-ae57-72daa162a2dc.jpg
+woman_avatar: /static/d962eda3-5516-457c-8258-a88243bc879d.jpg

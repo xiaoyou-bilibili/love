@@ -1,12 +1,13 @@
-use crate::lib::config::{config::get_config};
+use crate::lib::config::config::get_config;
 use crate::web::model::{
-    AddCountDownReq, AppSetting, AppState, CountDown, DynamicInfo, HandleResult, NoteInfo,
-    Response, TaskInfo, UpdateTaskReq,
+    AddCountDownReq, AppSetting, AppState, CommentInfo, CountDown, DynamicComment, DynamicInfo,
+    HandleResult, NoteInfo, Response, TaskInfo, UpdateTaskReq,
 };
 use axum::extract::Multipart;
 use axum::extract::{Extension, Path, Query};
 use axum::Json;
 use chrono::{Datelike, Local, NaiveDate};
+use image::{load_from_memory, ImageOutputFormat};
 use log::{error, info};
 use mongodb::bson::{doc, Document};
 use mongodb::options::FindOptions;
@@ -14,13 +15,13 @@ use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::fs::File;
 use std::io::{Cursor, Write};
-use image::{load_from_memory, ImageOutputFormat};
 
 // 倒计时
 const COLLECTION_COUNT_DOWN: &str = "count_down";
 const COLLECTION_TASK: &str = "task";
 const COLLECTION_DYNAMIC: &str = "dynamic";
 const COLLECTION_NOTE: &str = "note";
+const COLLECTION_COMMENT: &str = "comment";
 
 // 响应测试
 pub async fn pong() -> HandleResult<String> {
@@ -54,7 +55,7 @@ pub async fn upload_file(mut multipart: Multipart) -> HandleResult<String> {
         if let Err(e) = img {
             return Response::err(format!("加载图片失败 {}", e).as_str());
         }
-        if let Err(e) =img.unwrap().write_to(&mut buf, ImageOutputFormat::Jpeg(10)) {
+        if let Err(e) = img.unwrap().write_to(&mut buf, ImageOutputFormat::Jpeg(10)) {
             return Response::err(format!("压缩图片失败 {}", e).as_str());
         }
 
@@ -130,7 +131,6 @@ pub async fn get_count_down(
         let mut start = Local::now().date_naive().and_hms_opt(0, 0, 0).unwrap();
         let mut end = naive_date.unwrap().and_hms_opt(0, 0, 0).unwrap();
         if item.count_down_type == 2 {
-            println!("now is {} end is {}", start, end);
             // 倒计时时间需要倒过来
             (start, end) = (end, start);
         }
@@ -246,7 +246,10 @@ pub async fn get_task_tags(Extension(app_state): Extension<AppState>) -> HandleR
         .db
         .aggregate::<AggregateRes>(
             COLLECTION_TASK,
-            vec![doc! { "$group": { "_id": "$tag", "values": { "$addToSet": "$tag" } } }],
+            vec![
+                doc! { "$group": { "_id": "$tag", "values": { "$addToSet": "$tag" } } },
+                doc! {"$sort": {"_id": 1}},
+            ],
         )
         .await;
     if let Err(e) = res {
@@ -275,7 +278,7 @@ pub async fn add_dynamic(
 // 获取动态列表
 pub async fn get_dynamic_list(
     Extension(app_state): Extension<AppState>,
-) -> HandleResult<Vec<DynamicInfo>> {
+) -> HandleResult<Vec<DynamicComment>> {
     let mut result = Vec::new();
     // 获取所有倒计时
     let res = app_state
@@ -293,11 +296,51 @@ pub async fn get_dynamic_list(
     if let Err(e) = res {
         return Response::err(e.to_string().as_str());
     }
+    // 获取所有的动态id
+    let mut dynamic_ids = Vec::new();
+    let mut dynamic_list = Vec::new();
     for dynamic in res.unwrap() {
-        let mut req = DynamicInfo { ..dynamic };
-        req.id = Some(dynamic._id.unwrap().to_hex());
-        req._id = None;
-        result.push(req);
+        dynamic_ids.push(dynamic._id.clone().unwrap().to_hex());
+        let mut info = DynamicInfo { ..dynamic };
+        info.id = Some(dynamic._id.unwrap().to_hex());
+        info._id = None;
+        dynamic_list.push(info);
+    }
+
+    // 查询所有评论
+    let comment_res = app_state
+        .db
+        .find_data::<CommentInfo>(
+            COLLECTION_COMMENT,
+            Some(doc! {"relation_id": {"$in": dynamic_ids} }),
+            None,
+        )
+        .await;
+    // 映射为map
+    let mut comment_map: HashMap<String, Vec<CommentInfo>> = HashMap::new();
+    if let Ok(comment_list) = comment_res {
+        for comment in comment_list {
+            let mut info = CommentInfo { ..comment };
+            info.id = Some(comment._id.unwrap().to_hex());
+            info._id = None;
+            let relation_id = info.relation_id.clone();
+            if comment_map.contains_key(&*relation_id) {
+                comment_map.get_mut(&*relation_id).unwrap().push(info);
+            } else {
+                comment_map.insert(relation_id, vec![info]);
+            }
+        }
+    }
+
+    // 遍历所有动态
+    for dynamic in dynamic_list {
+        let mut comments = Vec::new();
+        // 插入评论
+        let id = dynamic.id.clone().unwrap();
+        if comment_map.contains_key(&*id) {
+            comments = comment_map.get(&*id).unwrap().to_vec();
+        }
+        result.push(DynamicComment { dynamic, comments });
     }
     Response::ok(result)
 }
@@ -340,6 +383,10 @@ pub async fn get_note_list(
         let mut req = NoteInfo { ..note };
         req.id = Some(note._id.unwrap().to_hex());
         req._id = None;
+        // 字符串超过200个就要截取
+        if utf8_slice::len(req.content.as_str()) > 200 {
+            req.content = utf8_slice::till(req.content.as_str(), 200).replace("\n"," ");
+        }
         result.push(req);
     }
     Response::ok(result)
@@ -396,13 +443,25 @@ pub async fn update_note(
     };
 }
 
-pub async fn get_app(
-) -> HandleResult<AppSetting> {
+pub async fn get_app() -> HandleResult<AppSetting> {
     let app = get_config();
     Response::ok(AppSetting {
         man_avatar: app.man_avatar,
         woman_avatar: app.woman_avatar,
     })
+}
+
+// 添加评论
+pub async fn add_comment(
+    Extension(app_state): Extension<AppState>,
+    Json(payload): Json<CommentInfo>,
+) -> HandleResult<String> {
+    // 添加到数据库
+    let res = app_state.db.insert_one(COLLECTION_COMMENT, payload).await;
+    return match res {
+        Ok(uuid) => Response::ok(uuid),
+        Err(e) => Response::err(e.to_string().as_str()),
+    };
 }
 
 #[cfg(test)]

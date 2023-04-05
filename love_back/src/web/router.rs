@@ -38,6 +38,8 @@ pub fn new_router(db: DbServer, secret: String) -> Router {
         .route("/note", put(handle::update_note))
         // app配置
         .route("/app", get(handle::get_app))
+        // 添加评论
+        .route("/comment", post(handle::add_comment))
 
         // 文件上传
         .route("/file/upload", post(handle::upload_file))
