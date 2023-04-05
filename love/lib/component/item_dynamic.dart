@@ -1,6 +1,4 @@
 // 朋友圈动态组件
-import 'dart:html';
-
 import 'package:bruno/bruno.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
@@ -69,7 +67,7 @@ class ComponentItemDynamic extends StatelessWidget {
       String cache = image.replaceAll("static/", "static/compose/");
       images.add(CachedNetworkImage(
         imageUrl: "$host/$cache",
-        fit: BoxFit.fitHeight, // 设置图片为正方形
+        fit: BoxFit.cover, // 设置图片为正方形
         placeholder: (context, url) => const Center(
             child: SizedBox(
                 width: 50, height: 50, child: CircularProgressIndicator())),
