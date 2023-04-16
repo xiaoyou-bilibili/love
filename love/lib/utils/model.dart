@@ -136,6 +136,7 @@ class NoteInfo {
   String id;
   String title;
   String content;
+  String tag;
   int timestamp;
   int sex;
 
@@ -144,6 +145,7 @@ class NoteInfo {
       required this.title,
       required this.content,
       required this.timestamp,
+      required this.tag,
       required this.sex});
 
   factory NoteInfo.fromJson(Map<String, dynamic> json) {
@@ -151,6 +153,7 @@ class NoteInfo {
         id: json['id'],
         title: json['title'],
         content: json['content'],
+        tag: json['tag'],
         timestamp: json['timestamp'],
         sex: json['sex']);
   }
@@ -159,6 +162,7 @@ class NoteInfo {
     Map<String, dynamic> info = {
       "title": title,
       "content": content,
+      "tag": tag,
       "timestamp": timestamp,
       "sex": sex
     };

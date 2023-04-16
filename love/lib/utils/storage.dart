@@ -38,6 +38,7 @@ class Storage {
   // 设置性别
   static Future<void> setSex(int value) async {
     final SharedPreferences prefs = await _prefs;
+    _sex = value;
     prefs.setInt(_keySex, value);
   }
 }

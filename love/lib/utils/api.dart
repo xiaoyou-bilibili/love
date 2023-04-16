@@ -24,8 +24,8 @@ class ApiService {
     return data;
   }
 
-  // 获取所有标签
-  static Future<List<String>> getTagList() async {
+  // 获取所有任务标签
+  static Future<List<String>> getTaskTagList() async {
     List<String> resp = [];
     List<dynamic> data = await _client.get("$base/task/tags");
     for (var element in data) {
@@ -65,10 +65,21 @@ class ApiService {
     return list;
   }
 
+  // 获取所有笔记标签
+  static Future<List<String>> getNoteTagList() async {
+    List<String> resp = [];
+    List<dynamic> data = await _client.get("$base/note/tags");
+    for (var element in data) {
+      resp.add(element);
+    }
+    return resp;
+  }
+
+
   // 获取笔记列表
-  static Future<List<NoteInfo>> getNoteList() async {
+  static Future<List<NoteInfo>> getNoteList(String tag) async {
     List<NoteInfo> list = [];
-    List<dynamic> data = await _client.get("$base/note");
+    List<dynamic> data = await _client.get("$base/note?tag=$tag");
     for (var item in data) {
       list.add(NoteInfo.fromJson(item));
     }

@@ -37,7 +37,7 @@ class _TaskFragmentState extends State<TaskFragment>
   @override
   void initState() {
     // 页面初始化获取一下所有的tag
-    ApiService.getTagList().then((tags) => {
+    ApiService.getTaskTagList().then((tags) => {
           if (tags.isNotEmpty)
             {
               _selectStatus = List.generate(tags.length, (index) => false),

@@ -53,6 +53,8 @@ dependencies:
   cached_network_image: ^3.2.3
   # 启动url
   url_launcher: ^6.1.10
+  # 日历
+  table_calendar: ^3.0.8
 
 
 dev_dependencies:

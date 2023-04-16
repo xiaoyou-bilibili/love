@@ -27,7 +27,24 @@ class _PageEditState extends State<PageEdit> {
   int _timestamp = 0;
   int _sex = 0;
   bool _preview = false; // 预览模式
+  // 标签选择部分
+  List<String> _tags = [];
+  String _tag = "";
 
+  @override
+  void initState() {
+    // 页面初始化获取一下所有的tag
+    ApiService.getNoteTagList().then((tags) => {
+          tags.isNotEmpty
+              ? setState(() {
+                  _tags = tags;
+                })
+              : null
+        });
+    super.initState();
+  }
+
+  // 初始化获取笔记的内容
   _PageEditState(this._id) {
     if (_id != '') {
       ApiService.getNote(_id).then((note) => {
@@ -37,6 +54,7 @@ class _PageEditState extends State<PageEdit> {
               _content = note.content;
               _timestamp = note.timestamp;
               _sex = note.sex;
+              _tag = note.tag;
             })
           });
     }
@@ -50,6 +68,7 @@ class _PageEditState extends State<PageEdit> {
   // 点击保存或更新按钮的操作
   void _actionSaveOrUpdate() {
     NoteInfo info = NoteInfo(
+      tag: _tag,
       title: _title,
       content: _content,
       timestamp: DateTime.now().millisecondsSinceEpoch ~/ 1000,
@@ -72,7 +91,6 @@ class _PageEditState extends State<PageEdit> {
                     setState(() {
                       _content = "$_content\n\n ![图片]($host/$value)";
                     }),
-                    (context as Element).markNeedsBuild(),
                   })
             }
         });
@@ -80,22 +98,22 @@ class _PageEditState extends State<PageEdit> {
 
   @override
   Widget build(BuildContext context) {
-    TextEditingController _controller = TextEditingController();
-    _controller.text = _content;
+    TextEditingController controller = TextEditingController();
+    controller.text = _content;
     // 添加一个监听器监听文本变化
-    _controller.addListener(() {
-      _content = _controller.text;
+    controller.addListener(() {
+      _content = controller.text;
     });
     // markDown编辑器
-    Widget _edit = MarkdownField(
+    Widget edit = MarkdownField(
       key: Key(_content),
-      controller: _controller,
+      controller: controller,
       emojiConvert: true,
       expands: true,
     );
     if (_preview) {
       // 预览模式设置各种触发事件
-      _edit = MarkdownParse(
+      edit = MarkdownParse(
           data: _content,
           onTapLink: (String text, String? href, String title) =>
               href != null ? launchUrl(Uri.parse(href)) : "",
@@ -104,20 +122,49 @@ class _PageEditState extends State<PageEdit> {
     }
 
     return Scaffold(
-      appBar: AppBar(title: Text(_id == '' ? '添加笔记' : '编辑笔记')),
+      appBar: AppBar(title: Text(_title == '' ? '无标题' : _title)),
       body: Column(
         children: [
-          BrnTextInputFormItem(
-            key: Key(_title),
-            controller: TextEditingController(text: _title),
-            title: "笔记标题",
-            hint: "输入标题~",
-            onChanged: (newValue) {
-              _title = newValue;
-            },
-          ),
+          Visibility(
+              visible: !_preview,
+              child: BrnTextInputFormItem(
+                key: Key(_title),
+                controller: TextEditingController(text: _title),
+                title: "笔记标题",
+                hint: "输入标题~",
+                onChanged: (newValue) {
+                  setState(() {
+                    _title = newValue;
+                  });
+                },
+              )),
+          Visibility(
+              visible: !_preview,
+              child: BrnTextQuickSelectFormItem(
+                title: "标签",
+                btnsTxt: _tags,
+                value: _tag,
+                isBtnsScroll: true,
+                prefixIconType: BrnPrefixIconType.add,
+                onBtnSelectChanged: (index) {
+                  setState(() {
+                    _tag = _tags[index];
+                  });
+                },
+                onAddTap: () {
+                  BrnMiddleInputDialog(
+                      title: "标签名称",
+                      hintText: '新标签名称',
+                      onConfirm: (value) {
+                        _tag = value;
+                        Navigator.pop(context);
+                        (context as Element).markNeedsBuild();
+                      },
+                      onCancel: () => Navigator.pop(context)).show(context);
+                },
+              )),
           // editable text with toolbar by default
-          Expanded(child: _edit),
+          Expanded(child: edit),
           BrnBottomButtonPanel(
             mainButtonName: _id == '' ? '保存' : '更新',
             mainButtonOnTap: _actionSaveOrUpdate,

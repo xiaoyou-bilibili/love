@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:love/pages/fragment.dart';
 import 'package:love/pages/fragment_album.dart';
+import 'package:love/pages/fragment_calendar.dart';
 import 'package:love/pages/fragment_home.dart';
 import 'package:love/pages/fragment_me.dart';
 import 'package:love/pages/fragment_notebook.dart';
@@ -38,7 +39,7 @@ class MyApp extends StatelessWidget {
       ],
       // 新增
       supportedLocales: const [
-        Locale('en', 'US'),
+        // Locale('en', 'US'),
         Locale('zh', 'CN'),
       ],
       home: const MyHomePage(title: '贴贴日常'),
@@ -114,7 +115,7 @@ class _MyHomePageState extends State<MyHomePage> {
         fragment = NotebookFragment(_key);
         break;
       case 4:
-        fragment = const MeFragment();
+        fragment = CalendarFragment(_key);
         break;
     }
 
@@ -185,6 +186,17 @@ class _MyHomePageState extends State<MyHomePage> {
                 color: Colors.green,
               ),
               title: Text("笔记")),
+          BubbleBottomBarItem(
+              backgroundColor: Colors.green,
+              icon: Icon(
+                Icons.date_range_sharp,
+                color: Colors.black,
+              ),
+              activeIcon: Icon(
+                Icons.date_range_sharp,
+                color: Colors.green,
+              ),
+              title: Text("日程")),
           // BubbleBottomBarItem(
           //     backgroundColor: Colors.green,
           //     icon: Icon(Icons.people, color: Colors.black,),
