@@ -55,6 +55,8 @@ dependencies:
   url_launcher: ^6.1.10
   # 日历
   table_calendar: ^3.0.8
+  # 图片预览库
+  photo_view: ^0.14.0
 
 
 dev_dependencies:

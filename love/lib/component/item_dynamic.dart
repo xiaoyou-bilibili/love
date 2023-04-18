@@ -7,6 +7,7 @@ import 'package:love/utils/api.dart';
 import 'package:love/utils/model.dart';
 import 'package:love/utils/http.dart' show host;
 import 'package:love/utils/storage.dart';
+import 'package:photo_view/photo_view_gallery.dart';
 
 class ComponentItemDynamic extends StatelessWidget {
   final DynamicComment info;
@@ -15,22 +16,18 @@ class ComponentItemDynamic extends StatelessWidget {
   late BuildContext _context;
 
   // 打开图片
-  void _openImage() {
-    List<String> urls = [];
-    for (var images in info.dynamicInfo.images) {
-      urls.add("$host/$images");
+  void _openImage(int index) {
+    // 构建图片列表
+    List<PhotoViewGalleryPageOptions> imgList = [];
+    for(var image in info.dynamicInfo.images) {
+      imgList.add(PhotoViewGalleryPageOptions(
+        imageProvider: CachedNetworkImageProvider("$host/$image"),
+      ));
     }
-    //通过url快速生成配置
-    List<BrnPhotoGroupConfig> allConfig = [
-      BrnPhotoGroupConfig.url(title: '图片', urls: urls)
-    ];
+
     Navigator.push(_context, MaterialPageRoute(
       builder: (BuildContext context) {
-        return BrnGalleryDetailPage(
-          allConfig: allConfig,
-          initGroupId: 0,
-          initIndexId: 4,
-        );
+        return PhotoViewGallery(pageOptions: imgList);
       },
     ));
   }
@@ -62,17 +59,19 @@ class ComponentItemDynamic extends StatelessWidget {
     DateTime timestamp =
         DateTime.fromMillisecondsSinceEpoch(info.dynamicInfo.timestamp * 1000);
     // 组装图片列表，这里替换为压缩后的图片
-    List<CachedNetworkImage> images = [];
+    List<InkWell> images = [];
     for (var image in info.dynamicInfo.images) {
       String cache = image.replaceAll("static/", "static/compose/");
-      images.add(CachedNetworkImage(
-        imageUrl: "$host/$cache",
-        fit: BoxFit.cover, // 设置图片为正方形
-        placeholder: (context, url) => const Center(
-            child: SizedBox(
-                width: 50, height: 50, child: CircularProgressIndicator())),
-        errorWidget: (context, url, error) => const Icon(Icons.error),
-      ));
+      images.add(InkWell(
+          onTap: () => _openImage(info.dynamicInfo.images.indexOf(image)),
+          child: CachedNetworkImage(
+            imageUrl: "$host/$cache",
+            fit: BoxFit.cover, // 设置图片为正方形
+            placeholder: (context, url) => const Center(
+                child: SizedBox(
+                    width: 50, height: 50, child: CircularProgressIndicator())),
+            errorWidget: (context, url, error) => const Icon(Icons.error),
+          )));
     }
     // 拼装评论列表
     List<Widget> comments = [];
@@ -101,18 +100,16 @@ class ComponentItemDynamic extends StatelessWidget {
         const SizedBox(height: 10),
         Text(info.dynamicInfo.content),
         const SizedBox(height: 10),
-        InkWell(
-            onTap: _openImage,
-            child: GridView(
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 3,
-                  mainAxisSpacing: 5,
-                  crossAxisSpacing: 5,
-                  childAspectRatio: 1,
-                ),
-                scrollDirection: Axis.vertical,
-                shrinkWrap: true,
-                children: images)),
+        GridView(
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 3,
+              mainAxisSpacing: 5,
+              crossAxisSpacing: 5,
+              childAspectRatio: 1,
+            ),
+            scrollDirection: Axis.vertical,
+            shrinkWrap: true,
+            children: images),
         Visibility(
             visible: comments.isNotEmpty,
             child: Container(
