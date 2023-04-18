@@ -30,9 +30,11 @@ pub fn new_router(db: DbServer, secret: String) -> Router {
         .route("/dynamic", get(handle::get_dynamic_list))
         // 添加笔记
         .route("/note", post(handle::add_note))
-        // 获取所有的日记
+        // 获取所有的笔记
         .route("/note", get(handle::get_note_list))
-        // 获取具体某个日记
+        // 获取所有的笔记标签
+        .route("/note/tags", get(handle::get_note_tags))
+        // 获取具体某个笔记
         .route("/note/:id", get(handle::get_note))
         // 更新笔记
         .route("/note", put(handle::update_note))

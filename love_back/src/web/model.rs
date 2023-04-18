@@ -105,6 +105,7 @@ pub struct NoteInfo {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub id: Option<String>, // 动态id
     pub title: String,   // 笔记标题
+    pub tag: String,     // 笔记标签
     pub content: String, // 笔记内容
     pub timestamp: i64,  // 时间戳
     pub sex: i32,        // 性别

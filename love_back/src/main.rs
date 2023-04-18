@@ -8,7 +8,7 @@ use axum::ServiceExt;
 use web::router::new_router;
 use lib::db::DbServer;
 use tower::{ServiceBuilder};
-// use tower_http::cors::{CorsLayer, Any};
+use tower_http::cors::{CorsLayer, Any};
 
 #[tokio::main]
 async fn main() {
@@ -21,7 +21,7 @@ async fn main() {
     // 构建我们自己的路由
     let app = new_router(db, config.secret);
     let app = ServiceBuilder::new()
-        // .layer(CorsLayer::new().allow_origin(Any).allow_methods(Any).allow_headers(Any))
+        .layer(CorsLayer::new().allow_origin(Any).allow_methods(Any).allow_headers(Any))
         .layer(DefaultBodyLimit::max(1024 * 1024 * 100))
         .service(app);
     // 绑定端口

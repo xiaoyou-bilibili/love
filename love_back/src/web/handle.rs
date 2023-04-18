@@ -233,8 +233,11 @@ pub async fn update_task(
     };
 }
 
-// 获取所有任务标签
-pub async fn get_task_tags(Extension(app_state): Extension<AppState>) -> HandleResult<Vec<String>> {
+// 获取所有的标签
+pub async fn get_all_tag(
+    app_state: AppState,
+    collection: &str
+) -> HandleResult<Vec<String>> {
     let mut result = Vec::new();
     // 获取所有倒计时
     #[derive(Serialize, Deserialize, Debug)]
@@ -245,7 +248,7 @@ pub async fn get_task_tags(Extension(app_state): Extension<AppState>) -> HandleR
     let res = app_state
         .db
         .aggregate::<AggregateRes>(
-            COLLECTION_TASK,
+            collection,
             vec![
                 doc! { "$group": { "_id": "$tag", "values": { "$addToSet": "$tag" } } },
                 doc! {"$sort": {"_id": 1}},
@@ -258,8 +261,12 @@ pub async fn get_task_tags(Extension(app_state): Extension<AppState>) -> HandleR
     for aggregate in res.unwrap() {
         result.push(aggregate._id)
     }
-
     Response::ok(result)
+}
+
+// 获取所有任务标签
+pub async fn get_task_tags(Extension(app_state): Extension<AppState>) -> HandleResult<Vec<String>> {
+    get_all_tag(app_state,COLLECTION_TASK).await
 }
 
 // 添加动态
@@ -361,14 +368,20 @@ pub async fn add_note(
 // 获取笔记列表
 pub async fn get_note_list(
     Extension(app_state): Extension<AppState>,
+    Query(args): Query<HashMap<String, String>>,
 ) -> HandleResult<Vec<NoteInfo>> {
+    let mut filter: Option<Document> = None;
+    // 获取一下tag，如果存在就直接设置
+    if let Some(tag) = args.get("tag") {
+        filter = Some(doc! {"tag": tag});
+    }
     let mut result = Vec::new();
     // 获取所有倒计时
     let res = app_state
         .db
         .find_data::<NoteInfo>(
             COLLECTION_NOTE,
-            None,
+            filter,
             Some(
                 FindOptions::builder()
                     .sort(doc! { "timestamp": -1 })
@@ -390,6 +403,11 @@ pub async fn get_note_list(
         result.push(req);
     }
     Response::ok(result)
+}
+
+// 获取所有笔记标签
+pub async fn get_note_tags(Extension(app_state): Extension<AppState>) -> HandleResult<Vec<String>> {
+    get_all_tag(app_state,COLLECTION_NOTE).await
 }
 
 // 获取笔记列表
@@ -434,6 +452,7 @@ pub async fn update_note(
             doc! { "$set": {
                 "title": payload.title,
                 "content": payload.content,
+                "tag": payload.tag,
             } },
         )
         .await;
