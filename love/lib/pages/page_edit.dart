@@ -30,6 +30,7 @@ class _PageEditState extends State<PageEdit> {
   // 标签选择部分
   List<String> _tags = [];
   String _tag = "";
+  List<bool> _selectStatus = [];
 
   @override
   void initState() {
@@ -37,6 +38,7 @@ class _PageEditState extends State<PageEdit> {
     ApiService.getNoteTagList().then((tags) => {
           tags.isNotEmpty
               ? setState(() {
+                  _selectStatus = List.generate(tags.length, (index) => false);
                   _tags = tags;
                 })
               : null
@@ -133,9 +135,7 @@ class _PageEditState extends State<PageEdit> {
                 title: "笔记标题",
                 hint: "输入标题~",
                 onChanged: (newValue) {
-                  setState(() {
-                    _title = newValue;
-                  });
+                  _title = newValue;
                 },
               )),
           Visibility(
@@ -145,10 +145,15 @@ class _PageEditState extends State<PageEdit> {
                 btnsTxt: _tags,
                 value: _tag,
                 isBtnsScroll: true,
+                selectBtnList: _selectStatus,
                 prefixIconType: BrnPrefixIconType.add,
                 onBtnSelectChanged: (index) {
                   setState(() {
                     _tag = _tags[index];
+                    // 修改其他按钮的状态，只能有一个按钮被点击
+                    for (var i = 0; i < _tags.length; i++) {
+                      _selectStatus[i] = i == index;
+                    }
                   });
                 },
                 onAddTap: () {

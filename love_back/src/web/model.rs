@@ -134,6 +134,32 @@ pub struct CommentInfo {
 // 新版动态
 #[derive(Debug, Serialize, Deserialize)]
 pub struct DynamicComment {
-    pub dynamic: DynamicInfo, // 动态信息
+    pub dynamic: DynamicInfo,       // 动态信息
     pub comments: Vec<CommentInfo>, // 评论信息
+}
+
+// 日程安排
+#[derive(Debug, Serialize, Deserialize)]
+pub struct Calendar {
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub _id: Option<ObjectId>, // object id
+    pub title: String,      // 标题
+    pub desc: String,       // 备注
+    pub start_time: i64, // 开始时间
+    pub end_time: i64,   // 结束时间
+    pub calendar_type: i32, // 日历类型 1 普通范围
+    pub sex: i32,           // 身份 1 男  2 女
+    pub create_time: i64 // 创建时间，用于
+}
+
+
+// 获取日程
+#[derive(Debug, Serialize, Deserialize)]
+pub struct CalendarInfo {
+    pub id: String,      // 日程id
+    pub title: String,   // 标题
+    pub desc: String,    // 备注
+    pub date: String, // 日期
+    pub calendar_type: i32, // 日历类型
+    pub sex: i32,           // 身份 1 男  2 女
 }

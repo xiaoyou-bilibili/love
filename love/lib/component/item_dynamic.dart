@@ -10,16 +10,16 @@ import 'package:love/utils/storage.dart';
 import 'package:photo_view/photo_view_gallery.dart';
 
 class ComponentItemDynamic extends StatelessWidget {
-  final DynamicComment info;
   ComponentItemDynamic(this.info, {super.key});
 
+  final DynamicComment info;
   late BuildContext _context;
 
   // 打开图片
   void _openImage(int index) {
     // 构建图片列表
     List<PhotoViewGalleryPageOptions> imgList = [];
-    for(var image in info.dynamicInfo.images) {
+    for (var image in info.dynamicInfo.images) {
       imgList.add(PhotoViewGalleryPageOptions(
         imageProvider: CachedNetworkImageProvider("$host/$image"),
       ));
@@ -27,7 +27,9 @@ class ComponentItemDynamic extends StatelessWidget {
 
     Navigator.push(_context, MaterialPageRoute(
       builder: (BuildContext context) {
-        return PhotoViewGallery(pageOptions: imgList);
+        return PhotoViewGallery(
+            pageOptions: imgList,
+            pageController: PageController(initialPage: index));
       },
     ));
   }

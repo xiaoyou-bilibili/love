@@ -1,7 +1,7 @@
 import 'package:dio/dio.dart';
 
 // 服务器地址
-const String host = "http://172.17.165.8:3000";
+const String host = "http://127.0.0.1:3000";
 
 class HttpClient {
   Dio dio = Dio();

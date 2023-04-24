@@ -12,7 +12,7 @@ use tower_http::cors::{CorsLayer, Any};
 
 #[tokio::main]
 async fn main() {
-    let config = crate::lib::config::config::get_config();
+    let config = lib::config::config::get_config();
     // 初始化log RUST_LOG = info
     // export RUST_LOG=info
     env_logger::init();

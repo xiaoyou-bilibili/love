@@ -3,7 +3,9 @@ import 'dart:html';
 import 'package:bruno/bruno.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:love/component/item_calendar.dart';
 import 'package:love/pages/fragment.dart';
+import 'package:love/utils/model.dart';
 import 'package:table_calendar/table_calendar.dart';
 
 class CalendarFragment extends StatefulWidget implements PageFragment {
@@ -48,6 +50,12 @@ class _CalendarFragmentState extends State<CalendarFragment> {
           }
           return [];
         },
+      ),
+      const SizedBox(height: 10),
+      Expanded(
+        child: ListView(scrollDirection: Axis.vertical, shrinkWrap:  true, children: [
+         ComponentItemCalendar(TaskInfo("11","大姨妈","标签",false, 1, 1111))
+        ]),
       )
     ]);
   }

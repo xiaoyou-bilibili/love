@@ -1,12 +1,12 @@
-use crate::lib::config::config::get_config;
+use crate::lib::{config::config::get_config, utils::naive_date_to_timestamp};
 use crate::web::model::{
-    AddCountDownReq, AppSetting, AppState, CommentInfo, CountDown, DynamicComment, DynamicInfo,
-    HandleResult, NoteInfo, Response, TaskInfo, UpdateTaskReq,
+    AddCountDownReq, AppSetting, AppState, Calendar, CommentInfo, CountDown, DynamicComment,
+    DynamicInfo, HandleResult, NoteInfo, Response, TaskInfo, UpdateTaskReq,
 };
 use axum::extract::Multipart;
 use axum::extract::{Extension, Path, Query};
 use axum::Json;
-use chrono::{Datelike, Local, NaiveDate};
+use chrono::{Datelike, Duration, Local, NaiveDate};
 use image::{load_from_memory, ImageOutputFormat};
 use log::{error, info};
 use mongodb::bson::{doc, Document};
@@ -14,7 +14,7 @@ use mongodb::options::FindOptions;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::fs::File;
-use std::io::{Cursor, Write};
+use std::io::{empty, Cursor, Write};
 
 // 倒计时
 const COLLECTION_COUNT_DOWN: &str = "count_down";
@@ -22,6 +22,7 @@ const COLLECTION_TASK: &str = "task";
 const COLLECTION_DYNAMIC: &str = "dynamic";
 const COLLECTION_NOTE: &str = "note";
 const COLLECTION_COMMENT: &str = "comment";
+const COLLECTION_CALENDAR: &str = "calendar";
 
 // 响应测试
 pub async fn pong() -> HandleResult<String> {
@@ -234,10 +235,7 @@ pub async fn update_task(
 }
 
 // 获取所有的标签
-pub async fn get_all_tag(
-    app_state: AppState,
-    collection: &str
-) -> HandleResult<Vec<String>> {
+pub async fn get_all_tag(app_state: AppState, collection: &str) -> HandleResult<Vec<String>> {
     let mut result = Vec::new();
     // 获取所有倒计时
     #[derive(Serialize, Deserialize, Debug)]
@@ -266,7 +264,7 @@ pub async fn get_all_tag(
 
 // 获取所有任务标签
 pub async fn get_task_tags(Extension(app_state): Extension<AppState>) -> HandleResult<Vec<String>> {
-    get_all_tag(app_state,COLLECTION_TASK).await
+    get_all_tag(app_state, COLLECTION_TASK).await
 }
 
 // 添加动态
@@ -398,7 +396,7 @@ pub async fn get_note_list(
         req._id = None;
         // 字符串超过200个就要截取
         if utf8_slice::len(req.content.as_str()) > 200 {
-            req.content = utf8_slice::till(req.content.as_str(), 200).replace("\n"," ");
+            req.content = utf8_slice::till(req.content.as_str(), 200).replace("\n", " ");
         }
         result.push(req);
     }
@@ -407,7 +405,7 @@ pub async fn get_note_list(
 
 // 获取所有笔记标签
 pub async fn get_note_tags(Extension(app_state): Extension<AppState>) -> HandleResult<Vec<String>> {
-    get_all_tag(app_state,COLLECTION_NOTE).await
+    get_all_tag(app_state, COLLECTION_NOTE).await
 }
 
 // 获取笔记列表
@@ -481,6 +479,100 @@ pub async fn add_comment(
         Ok(uuid) => Response::ok(uuid),
         Err(e) => Response::err(e.to_string().as_str()),
     };
+}
+
+// 添加日程
+pub async fn add_calendar(
+    Extension(app_state): Extension<AppState>,
+    Json(payload): Json<Calendar>,
+) -> HandleResult<String> {
+    // 添加到数据库
+    let res = app_state.db.insert_one(COLLECTION_CALENDAR, payload).await;
+    return match res {
+        Ok(uuid) => Response::ok(uuid),
+        Err(e) => Response::err(e.to_string().as_str()),
+    };
+}
+
+// 获取日程列表
+pub async fn get_calendar(
+    Extension(app_state): Extension<AppState>,
+    Query(args): Query<HashMap<String, String>>,
+) -> HandleResult<Vec<Calendar>> {
+    // 获取开始时间
+    let year_arg = args.get("year");
+    let month_arg = args.get("month");
+    if year_arg.is_none() || month_arg.is_none() {
+        return Response::err("year 和 month 不能为空");
+    }
+    let year = year_arg.unwrap().parse::<i32>();
+    let month = month_arg.unwrap().parse::<u32>();
+    if year.is_err() || month.is_err() {
+        return Response::err("year 和 month 必须是数字");
+    }
+
+    let start = NaiveDate::parse_from_str(
+        format!("{}-{}-01", year.clone().unwrap(), month.clone().unwrap()).as_str(),
+        "%Y-%m-%d",
+    )
+    .unwrap();
+    let end: NaiveDate;
+    // 12月得特殊处理
+    if month.clone().unwrap() == 12 {
+        end = NaiveDate::parse_from_str(
+            format!("{}-01-01", year.clone().unwrap() + 1).as_str(),
+            "%Y-%m-%d",
+        )
+        .unwrap()
+        .pred_opt()
+        .unwrap();
+    } else {
+        end = start
+            .with_day(1)
+            .unwrap()
+            .with_month(month.unwrap() + 1)
+            .unwrap()
+            .pred_opt()
+            .unwrap();
+    }
+    // 根据开始时间和结束时间来计算
+    println!(
+        "start {:?} end {:?} ",
+        naive_date_to_timestamp(start),
+        naive_date_to_timestamp(end)
+    );
+    // 按照时间范围来进行过滤
+    let res = app_state
+        .db
+        .find_data::<Calendar>(
+            COLLECTION_CALENDAR,
+            Some(doc! {
+                "start_time": {"$gte": naive_date_to_timestamp(start),"$lte": naive_date_to_timestamp(end)},
+                "end_time": {"$gte": naive_date_to_timestamp(start),"$lte": naive_date_to_timestamp(end)},
+                "calendar_type": 1
+            }),
+            None,
+        )
+        .await;
+    // 遍历这个月每一天
+    let mut current = start;
+    while current <= end {
+        println!("current {:?}", current.format("%Y-%m-%d"));
+        current+=Duration::days(1);
+    }
+
+
+    // for note in res.unwrap() {
+    //     let mut req = NoteInfo { ..note };
+    //     req.id = Some(note._id.unwrap().to_hex());
+    //     req._id = None;
+    //     // 字符串超过200个就要截取
+    //     if utf8_slice::len(req.content.as_str()) > 200 {
+    //         req.content = utf8_slice::till(req.content.as_str(), 200).replace("\n", " ");
+    //     }
+    //     result.push(req);
+    // }
+    return  Response::ok(res.unwrap());
 }
 
 #[cfg(test)]

@@ -42,6 +42,11 @@ pub fn new_router(db: DbServer, secret: String) -> Router {
         .route("/app", get(handle::get_app))
         // 添加评论
         .route("/comment", post(handle::add_comment))
+        // 添加一个时间范围
+        .route("/calender", post(handle::add_calendar))
+        // 获取所有日程
+        .route("/calender", get(handle::get_calendar))
+
 
         // 文件上传
         .route("/file/upload", post(handle::upload_file))

@@ -7,7 +7,7 @@ import 'package:love/utils/model.dart';
 class ComponentItemTaskBox extends StatefulWidget {
   final TaskInfo info;
 
-  ComponentItemTaskBox(this.info, {super.key});
+  const ComponentItemTaskBox(this.info, {super.key});
 
   @override
   State<ComponentItemTaskBox> createState() => _ComponentItemTaskBoxState();

@@ -106,16 +106,17 @@ class _MyHomePageState extends State<MyHomePage> {
         fragment = HomeFragment(_key);
         break;
       case 1:
-        fragment = TaskFragment(_key);
+        fragment = CalendarFragment(_key);
+
         break;
       case 2:
-        fragment = AlbumFragment(_key);
+        fragment = TaskFragment(_key);
         break;
       case 3:
-        fragment = NotebookFragment(_key);
+        fragment = AlbumFragment(_key);
         break;
       case 4:
-        fragment = CalendarFragment(_key);
+        fragment = NotebookFragment(_key);
         break;
     }
 
@@ -154,6 +155,17 @@ class _MyHomePageState extends State<MyHomePage> {
               ),
               title: Text("主页")),
           BubbleBottomBarItem(
+              backgroundColor: Colors.green,
+              icon: Icon(
+                Icons.date_range_sharp,
+                color: Colors.black,
+              ),
+              activeIcon: Icon(
+                Icons.date_range_sharp,
+                color: Colors.green,
+              ),
+              title: Text("日程")),
+          BubbleBottomBarItem(
               backgroundColor: Colors.deepPurple,
               icon: Icon(
                 Icons.check_box,
@@ -186,17 +198,6 @@ class _MyHomePageState extends State<MyHomePage> {
                 color: Colors.green,
               ),
               title: Text("笔记")),
-          BubbleBottomBarItem(
-              backgroundColor: Colors.green,
-              icon: Icon(
-                Icons.date_range_sharp,
-                color: Colors.black,
-              ),
-              activeIcon: Icon(
-                Icons.date_range_sharp,
-                color: Colors.green,
-              ),
-              title: Text("日程")),
           // BubbleBottomBarItem(
           //     backgroundColor: Colors.green,
           //     icon: Icon(Icons.people, color: Colors.black,),
