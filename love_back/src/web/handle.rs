@@ -1,8 +1,5 @@
 use crate::lib::{config::config::get_config, utils::naive_date_to_timestamp};
-use crate::web::model::{
-    AddCountDownReq, AppSetting, AppState, Calendar, CommentInfo, CountDown, DynamicComment,
-    DynamicInfo, HandleResult, NoteInfo, Response, TaskInfo, UpdateTaskReq,
-};
+use crate::web::model::{AddCountDownReq, AppSetting, AppState, Calendar, CalendarInfo, CommentInfo, CountDown, DynamicComment, DynamicInfo, HandleResult, NoteInfo, Response, TaskInfo, UpdateTaskReq};
 use axum::extract::Multipart;
 use axum::extract::{Extension, Path, Query};
 use axum::Json;
@@ -15,6 +12,7 @@ use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::fs::File;
 use std::io::{empty, Cursor, Write};
+use std::ops::Add;
 
 // 倒计时
 const COLLECTION_COUNT_DOWN: &str = "count_down";
@@ -498,7 +496,8 @@ pub async fn add_calendar(
 pub async fn get_calendar(
     Extension(app_state): Extension<AppState>,
     Query(args): Query<HashMap<String, String>>,
-) -> HandleResult<Vec<Calendar>> {
+) -> HandleResult<Vec<CalendarInfo>> {
+    let mut result = Vec::new();
     // 获取开始时间
     let year_arg = args.get("year");
     let month_arg = args.get("month");
@@ -554,25 +553,32 @@ pub async fn get_calendar(
             None,
         )
         .await;
+    if let Err(e) = res {
+        return Response::err(e.to_string().as_str());
+    }
     // 遍历这个月每一天
     let mut current = start;
+    let calendar_iter = res.unwrap();
     while current <= end {
-        println!("current {:?}", current.format("%Y-%m-%d"));
-        current+=Duration::days(1);
+        for calendar in calendar_iter.iter().clone() {
+            // 如果是当天的日程
+            if calendar.start_time <= naive_date_to_timestamp(current)
+                && naive_date_to_timestamp(current) <= calendar.end_time
+            {
+                result.push(CalendarInfo{
+                    id: calendar._id.unwrap().to_hex(),
+                    title: calendar.title.to_string(),
+                    desc: calendar.desc.to_string(),
+                    date: current.format("%Y-%m-%d").to_string(),
+                    calendar_type: 1,
+                    sex: calendar.sex,
+                });
+            }
+        }
+        current += Duration::days(1);
     }
 
-
-    // for note in res.unwrap() {
-    //     let mut req = NoteInfo { ..note };
-    //     req.id = Some(note._id.unwrap().to_hex());
-    //     req._id = None;
-    //     // 字符串超过200个就要截取
-    //     if utf8_slice::len(req.content.as_str()) > 200 {
-    //         req.content = utf8_slice::till(req.content.as_str(), 200).replace("\n", " ");
-    //     }
-    //     result.push(req);
-    // }
-    return  Response::ok(res.unwrap());
+    return Response::ok(result);
 }
 
 #[cfg(test)]

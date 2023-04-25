@@ -248,3 +248,63 @@ class DynamicComment {
         comments: commentList);
   }
 }
+
+// 添加日程
+class AddCalendarReq {
+  String title;
+  String desc;
+  int startTime;
+  int endTime;
+  int calendarType;
+  int sex;
+  int timestamp;
+
+  AddCalendarReq(
+      {required this.title,
+      required this.desc,
+      required this.startTime,
+      required this.endTime,
+      required this.calendarType,
+      required this.timestamp,
+      required this.sex});
+
+  Map toJson() {
+    return {
+      "title": title,
+      "desc": desc,
+      "start_time": startTime,
+      "end_time": endTime,
+      "calendar_type": calendarType,
+      "timestamp": timestamp,
+      "sex": sex
+    };
+  }
+}
+
+// 获取日程
+class CalendarInfo {
+  String id;
+  String title;
+  String desc;
+  String date;
+  int calendarType;
+  int sex;
+
+  CalendarInfo(
+      {required this.id,
+        required this.title,
+        required this.desc,
+        required this.date,
+        required this.calendarType,
+        required this.sex});
+
+  factory CalendarInfo.fromJson(Map<String, dynamic> json) {
+    return CalendarInfo(
+        id: json['id'],
+        title: json['title'],
+        desc: json['desc'],
+        date: json['date'],
+        calendarType: json['calendar_type'],
+        sex: json['sex']);
+  }
+}
