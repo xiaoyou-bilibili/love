@@ -149,7 +149,7 @@ pub struct Calendar {
     pub end_time: i64,   // 结束时间
     pub calendar_type: i32, // 日历类型 1 普通范围
     pub sex: i32,           // 身份 1 男  2 女
-    pub create_time: i64 // 创建时间，用于
+    pub timestamp: i64 // 创建时间
 }
 
 

@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:dio/dio.dart';
 import 'package:image_picker/image_picker.dart';
 
@@ -127,5 +129,21 @@ class ApiService {
   // 添加评论
   static Future<void> addComment(CommentInfo body) async {
     _client.post("$base/comment", body);
+  }
+
+  // 添加日程
+  static Future<void> addCalendar(AddCalendarReq body) async {
+    print("json ${jsonEncode(body)}");
+    _client.post("$base/calender", body);
+  }
+
+  // 获取日程
+  static Future<List<CalendarInfo>> getCalendarList(String year,String month) async {
+    List<CalendarInfo> list = [];
+    List<dynamic> data = await _client.get("$base/calender?year=$year&month=$month");
+    for (var item in data) {
+      list.add(CalendarInfo.fromJson(item));
+    }
+    return list;
   }
 }

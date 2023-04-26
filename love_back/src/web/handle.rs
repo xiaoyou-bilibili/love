@@ -1,5 +1,8 @@
 use crate::lib::{config::config::get_config, utils::naive_date_to_timestamp};
-use crate::web::model::{AddCountDownReq, AppSetting, AppState, Calendar, CalendarInfo, CommentInfo, CountDown, DynamicComment, DynamicInfo, HandleResult, NoteInfo, Response, TaskInfo, UpdateTaskReq};
+use crate::web::model::{
+    AddCountDownReq, AppSetting, AppState, Calendar, CalendarInfo, CommentInfo, CountDown,
+    DynamicComment, DynamicInfo, HandleResult, NoteInfo, Response, TaskInfo, UpdateTaskReq,
+};
 use axum::extract::Multipart;
 use axum::extract::{Extension, Path, Query};
 use axum::Json;
@@ -546,9 +549,10 @@ pub async fn get_calendar(
         .find_data::<Calendar>(
             COLLECTION_CALENDAR,
             Some(doc! {
-                "start_time": {"$gte": naive_date_to_timestamp(start),"$lte": naive_date_to_timestamp(end)},
-                "end_time": {"$gte": naive_date_to_timestamp(start),"$lte": naive_date_to_timestamp(end)},
-                "calendar_type": 1
+                "$or": [
+                    {"start_time": {"$gte": naive_date_to_timestamp(start),"$lte": naive_date_to_timestamp(end)}},
+                    {"end_time": {"$gte": naive_date_to_timestamp(start),"$lte": naive_date_to_timestamp(end)}},
+                ]
             }),
             None,
         )
@@ -556,24 +560,59 @@ pub async fn get_calendar(
     if let Err(e) = res {
         return Response::err(e.to_string().as_str());
     }
+    // 获取最新的一次大姨妈时间
+    let res2 = app_state
+        .db
+        .find_data::<Calendar>(
+            COLLECTION_CALENDAR,
+            Some(doc! {"calendar_type": 2}),
+            Some(
+                FindOptions::builder()
+                    .sort(doc! {"start_time": -1})
+                    .limit(1)
+                    .build(),
+            ),
+        )
+        .await;
+    let mut menstruation_start_time = 0;
+    let mut menstruation_end_time = 0;
+    if let Ok(calendar_list) = res2 {
+        if !calendar_list.is_empty() {
+            menstruation_start_time = calendar_list.get(0).unwrap().start_time + 3600 * 24 * 28;
+            menstruation_end_time = menstruation_start_time + 3600 * 24 * 4;
+            println!("大姨妈时间 {:?}", menstruation_start_time);
+        }
+    }
     // 遍历这个月每一天
     let mut current = start;
     let calendar_iter = res.unwrap();
     while current <= end {
+        let timestamp = naive_date_to_timestamp(current);
         for calendar in calendar_iter.iter().clone() {
             // 如果是当天的日程
-            if calendar.start_time <= naive_date_to_timestamp(current)
-                && naive_date_to_timestamp(current) <= calendar.end_time
+            if calendar.start_time <= timestamp
+                && timestamp <= calendar.end_time
             {
-                result.push(CalendarInfo{
+                result.push(CalendarInfo {
                     id: calendar._id.unwrap().to_hex(),
                     title: calendar.title.to_string(),
                     desc: calendar.desc.to_string(),
                     date: current.format("%Y-%m-%d").to_string(),
-                    calendar_type: 1,
+                    calendar_type: calendar.calendar_type,
                     sex: calendar.sex,
                 });
             }
+        }
+        // 如果是大姨妈
+        if menstruation_start_time <= timestamp && timestamp <= menstruation_end_time {
+            result.push(CalendarInfo {
+                id: "".to_string(),
+                title: "大姨妈".to_string(),
+                desc: "预测时间".to_string(),
+                date: current.format("%Y-%m-%d").to_string(),
+                calendar_type: 2,
+                sex: 2,
+            });
         }
         current += Duration::days(1);
     }
