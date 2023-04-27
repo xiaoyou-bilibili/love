@@ -12,6 +12,7 @@ use log::{error, info};
 use mongodb::bson::{doc, Document};
 use mongodb::options::FindOptions;
 use serde::{Deserialize, Serialize};
+use std::cmp::Ordering;
 use std::collections::HashMap;
 use std::fs::File;
 use std::io::{empty, Cursor, Write};
@@ -43,12 +44,11 @@ pub async fn upload_file(mut multipart: Multipart) -> HandleResult<String> {
         let filename = field.file_name().unwrap().to_string();
         // 获取文件后缀
         let ext = filename.split('.').last().unwrap().to_string();
-        info!("file name is {}, ext is {}", filename, ext);
         // 生成一个一个UUID
         let uuid = uuid::Uuid::new_v4().to_string();
         let new_file = format!("static/{}.{}", uuid, ext);
         let new_file_compose = format!("static/compose/{}.{}", uuid, ext);
-        info!("new file is {}", new_file);
+        // info!("new file is {}", new_file);
         // 获取文件内容
         let data = field.bytes().await.unwrap();
         // 图片压缩
@@ -91,7 +91,6 @@ pub async fn get_count_down(
         return Response::err(e.to_string().as_str());
     }
     for item in res.unwrap() {
-        info!("item info {:?}", item);
         let mut time = item.time.to_string();
         // 判断倒计时类型
         if item.count_down_type == 2 {
@@ -107,12 +106,6 @@ pub async fn get_count_down(
                 continue;
             }
             let now = Local::now();
-            info!(
-                "year {} month {} day {}",
-                now.year(),
-                now.month(),
-                now.day()
-            );
             let mut year = now.year();
             // 如果已经过去了就使用下一年的
             if now.month() > date_info[0] {
@@ -121,7 +114,7 @@ pub async fn get_count_down(
                 year += 1;
             }
             time = format!("{}-{}", year, item.time);
-            info!("day is {}", time);
+            // info!("day is {}", time);
         }
         // 先解析出时间
         let naive_date = NaiveDate::parse_from_str(time.as_str(), "%Y-%m-%d");
@@ -145,8 +138,22 @@ pub async fn get_count_down(
             time: item.time,
             count: format!("{}天", diff),
             sex: item.sex,
+            count_down_type: item.count_down_type,
+            diff,
         })
     }
+    // 进行自定义排序，优先展示正计时，然后是倒计时（正计时从大到小，倒计时从小到达）
+    result.sort_by(|a, b| {
+        return if a.count_down_type != b.count_down_type {
+            a.count_down_type.cmp(&b.count_down_type)
+        } else {
+            if a.count_down_type == 1 {
+                return b.diff.cmp(&a.diff);
+            }
+            a.diff.cmp(&b.diff)
+        }
+    });
+
     Response::ok(result)
 }
 
@@ -537,12 +544,6 @@ pub async fn get_calendar(
             .pred_opt()
             .unwrap();
     }
-    // 根据开始时间和结束时间来计算
-    println!(
-        "start {:?} end {:?} ",
-        naive_date_to_timestamp(start),
-        naive_date_to_timestamp(end)
-    );
     // 按照时间范围来进行过滤
     let res = app_state
         .db
@@ -578,9 +579,8 @@ pub async fn get_calendar(
     let mut menstruation_end_time = 0;
     if let Ok(calendar_list) = res2 {
         if !calendar_list.is_empty() {
-            menstruation_start_time = calendar_list.get(0).unwrap().start_time + 3600 * 24 * 28;
+            menstruation_start_time = calendar_list.get(0).unwrap().start_time + 3600 * 24 * 27;
             menstruation_end_time = menstruation_start_time + 3600 * 24 * 4;
-            println!("大姨妈时间 {:?}", menstruation_start_time);
         }
     }
     // 遍历这个月每一天
@@ -590,9 +590,7 @@ pub async fn get_calendar(
         let timestamp = naive_date_to_timestamp(current);
         for calendar in calendar_iter.iter().clone() {
             // 如果是当天的日程
-            if calendar.start_time <= timestamp
-                && timestamp <= calendar.end_time
-            {
+            if calendar.start_time <= timestamp && timestamp <= calendar.end_time {
                 result.push(CalendarInfo {
                     id: calendar._id.unwrap().to_hex(),
                     title: calendar.title.to_string(),
@@ -608,7 +606,7 @@ pub async fn get_calendar(
             result.push(CalendarInfo {
                 id: "".to_string(),
                 title: "大姨妈".to_string(),
-                desc: "预测时间".to_string(),
+                desc: "预测时间，注意提前准备(*^_^*)".to_string(),
                 date: current.format("%Y-%m-%d").to_string(),
                 calendar_type: 2,
                 sex: 2,

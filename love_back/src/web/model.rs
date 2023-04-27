@@ -45,11 +45,13 @@ where
 // 倒计时
 #[derive(Debug, Serialize, Deserialize)]
 pub struct CountDown {
-    pub id: String,    // 倒计时ID
-    pub title: String, // 倒计时标题
-    pub time: String,  // 时间信息
-    pub count: String, // 剩余时间
-    pub sex: i32,      // 性别
+    pub id: String,           // 倒计时ID
+    pub title: String,        // 倒计时标题
+    pub time: String,         // 时间信息
+    pub count: String,        // 剩余时间
+    pub sex: i32,             // 性别
+    pub count_down_type: i32, // 倒计时类型 1 正计时 2 倒计时
+    pub diff: i64,            // 相差时间
 }
 
 // 添加倒计时
@@ -145,21 +147,20 @@ pub struct Calendar {
     pub _id: Option<ObjectId>, // object id
     pub title: String,      // 标题
     pub desc: String,       // 备注
-    pub start_time: i64, // 开始时间
-    pub end_time: i64,   // 结束时间
+    pub start_time: i64,    // 开始时间
+    pub end_time: i64,      // 结束时间
     pub calendar_type: i32, // 日历类型 1 普通范围
     pub sex: i32,           // 身份 1 男  2 女
-    pub timestamp: i64 // 创建时间
+    pub timestamp: i64,     // 创建时间
 }
-
 
 // 获取日程
 #[derive(Debug, Serialize, Deserialize)]
 pub struct CalendarInfo {
-    pub id: String,      // 日程id
-    pub title: String,   // 标题
-    pub desc: String,    // 备注
-    pub date: String, // 日期
+    pub id: String,         // 日程id
+    pub title: String,      // 标题
+    pub desc: String,       // 备注
+    pub date: String,       // 日期
     pub calendar_type: i32, // 日历类型
     pub sex: i32,           // 身份 1 男  2 女
 }
