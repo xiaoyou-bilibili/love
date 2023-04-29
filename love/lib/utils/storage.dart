@@ -52,6 +52,6 @@ class Storage {
 
   // 获取次要颜色
   static Color getSecondaryColor() {
-    return const Color.fromRGBO(255, 192, 203, 10);
+    return const Color.fromRGBO(117, 117, 117, 10);
   }
 }

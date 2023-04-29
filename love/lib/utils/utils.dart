@@ -25,7 +25,7 @@ MaterialColor createMaterialColor(Color color) {
 
 // 设置一个带主题颜色的文本标签
 Widget getPrimaryText(String text) {
-  return Text("添加倒计时", style: TextStyle(color: Storage.getPrimaryColor()));
+  return Text(text, style: TextStyle(color: Storage.getPrimaryColor()));
 }
 
 // 自定义弹窗
