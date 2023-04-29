@@ -40,14 +40,16 @@ class _NotebookFragmentState extends State<NotebookFragment>
   @override
   void initState() {
     // 页面初始化获取一下所有的tag
-    ApiService.getNoteTagList().then((tags) => {
-          tags.isNotEmpty
-              ? setState(() {
-                  _tags = tags;
-                  _tag = tags.first;
-                })
-              : null,
-        });
+    ApiService.getNoteTagList().then(
+      (tags) => {
+        tags.isNotEmpty
+            ? setState(() {
+                _tags = tags;
+                _tag = tags.first;
+              })
+            : null,
+      },
+    );
     super.initState();
   }
 
@@ -74,39 +76,42 @@ class _NotebookFragmentState extends State<NotebookFragment>
       ),
       Expanded(
         child: AnimationLimiter(
-            child: FutureBuilder(
-          future: ApiService.getNoteList(_tag),
-          builder: (BuildContext context, AsyncSnapshot snapshot) {
-            if (snapshot.connectionState == ConnectionState.done) {
-              List<NoteInfo> data = snapshot.data;
-              return ListView.builder(
-                itemCount: data.length,
-                itemBuilder: (BuildContext context, int index) {
-                  return AnimationConfiguration.staggeredList(
-                    position: index,
-                    duration: const Duration(milliseconds: 375),
-                    child: SlideAnimation(
-                      verticalOffset: 50.0,
-                      child: FadeInAnimation(
+          child: FutureBuilder(
+            future: ApiService.getNoteList(_tag),
+            builder: (BuildContext context, AsyncSnapshot snapshot) {
+              if (snapshot.connectionState == ConnectionState.done) {
+                List<NoteInfo> data = snapshot.data;
+                return ListView.builder(
+                  itemCount: data.length,
+                  itemBuilder: (BuildContext context, int index) {
+                    return AnimationConfiguration.staggeredList(
+                      position: index,
+                      duration: const Duration(milliseconds: 375),
+                      child: SlideAnimation(
+                        verticalOffset: 50.0,
+                        child: FadeInAnimation(
                           child: InkWell(
-                        onTap: () {
-                          Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) =>
-                                          PageEdit(data[index].id)))
-                              .then((value) => setState(() {}));
-                        },
-                        child: ComponentItemNoteBook(data[index]),
-                      )),
-                    ),
-                  );
-                },
-              );
-            }
-            return const BrnPageLoading();
-          },
-        )),
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) =>
+                                      PageEdit(data[index].id),
+                                ),
+                              ).then((value) => setState(() {}));
+                            },
+                            child: ComponentItemNoteBook(data[index]),
+                          ),
+                        ),
+                      ),
+                    );
+                  },
+                );
+              }
+              return const BrnPageLoading();
+            },
+          ),
+        ),
       )
     ]);
   }

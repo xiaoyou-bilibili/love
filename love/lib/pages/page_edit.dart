@@ -89,11 +89,13 @@ class _PageEditState extends State<PageEdit> {
     _picker.pickImage(source: ImageSource.gallery).then((image) => {
           if (image != null)
             {
-              ApiService.uploadFile(image).then((value) => {
-                    setState(() {
-                      _content = "$_content\n\n ![图片]($host/$value)";
-                    }),
+              ApiService.uploadFile(image).then(
+                (value) => {
+                  setState(() {
+                    _content = "$_content\n\n ![图片]($host/$value)";
                   })
+                },
+              )
             }
         });
   }
@@ -116,58 +118,72 @@ class _PageEditState extends State<PageEdit> {
     if (_preview) {
       // 预览模式设置各种触发事件
       edit = MarkdownParse(
-          data: _content,
-          onTapLink: (String text, String? href, String title) =>
-              href != null ? launchUrl(Uri.parse(href)) : "",
-          imageBuilder: (Uri uri, String? title, String? alt) =>
-              CachedNetworkImage(imageUrl: uri.toString()));
+        data: _content,
+        onTapLink: (String text, String? href, String title) =>
+            href != null ? launchUrl(Uri.parse(href)) : "",
+        imageBuilder: (Uri uri, String? title, String? alt) =>
+            CachedNetworkImage(imageUrl: uri.toString()),
+      );
     }
 
     return Scaffold(
-      appBar: AppBar(title: Text(_title == '' ? '无标题' : _title)),
+      appBar: AppBar(
+        title: Text(
+          _title == '' ? '无标题' : _title,
+          style: const TextStyle(color: Colors.white),
+        ),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          color: Colors.white,
+          onPressed: () => Navigator.pop(context),
+        ),
+      ),
       body: Column(
         children: [
           Visibility(
-              visible: !_preview,
-              child: BrnTextInputFormItem(
-                key: Key(_title),
-                controller: TextEditingController(text: _title),
-                title: "笔记标题",
-                hint: "输入标题~",
-                onChanged: (newValue) {
-                  _title = newValue;
-                },
-              )),
+            visible: !_preview,
+            child: BrnTextInputFormItem(
+              key: Key(_title),
+              controller: TextEditingController(text: _title),
+              title: "笔记标题",
+              hint: "输入标题~",
+              onChanged: (newValue) {
+                _title = newValue;
+              },
+            ),
+          ),
           Visibility(
-              visible: !_preview,
-              child: BrnTextQuickSelectFormItem(
-                title: "标签",
-                btnsTxt: _tags,
-                value: _tag,
-                isBtnsScroll: true,
-                selectBtnList: _selectStatus,
-                prefixIconType: BrnPrefixIconType.add,
-                onBtnSelectChanged: (index) {
-                  setState(() {
-                    _tag = _tags[index];
-                    // 修改其他按钮的状态，只能有一个按钮被点击
-                    for (var i = 0; i < _tags.length; i++) {
-                      _selectStatus[i] = i == index;
-                    }
-                  });
-                },
-                onAddTap: () {
-                  BrnMiddleInputDialog(
-                      title: "标签名称",
-                      hintText: '新标签名称',
-                      onConfirm: (value) {
-                        _tag = value;
-                        Navigator.pop(context);
-                        (context as Element).markNeedsBuild();
-                      },
-                      onCancel: () => Navigator.pop(context)).show(context);
-                },
-              )),
+            visible: !_preview,
+            child: BrnTextQuickSelectFormItem(
+              title: "标签",
+              btnsTxt: _tags,
+              value: _tag,
+              isBtnsScroll: true,
+              selectBtnList: _selectStatus,
+              prefixIconType: BrnPrefixIconType.add,
+              onBtnSelectChanged: (index) {
+                setState(() {
+                  _tag = _tags[index];
+                  // 修改其他按钮的状态，只能有一个按钮被点击
+                  for (var i = 0; i < _tags.length; i++) {
+                    _selectStatus[i] = i == index;
+                  }
+                });
+              },
+              onAddTap: () {
+                BrnMiddleInputDialog(
+                  title: "标签名称",
+                  hintText: '新标签名称',
+                  onConfirm: (value) {
+                    _tag = value;
+                    Navigator.pop(context);
+                    (context as Element).markNeedsBuild();
+                  },
+                  onCancel: () => Navigator.pop(context),
+                ).show(context);
+              },
+            ),
+          ),
           // editable text with toolbar by default
           Expanded(child: edit),
           BrnBottomButtonPanel(

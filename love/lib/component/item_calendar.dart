@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:love/component/component_avatar.dart';
-import 'package:love/utils/api.dart';
 import 'package:love/utils/model.dart';
+import 'package:love/utils/storage.dart';
 
 // 日程组件
 class ComponentItemCalendar extends StatefulWidget {
@@ -20,19 +20,22 @@ class _ComponentItemCalendarState extends State<ComponentItemCalendar> {
   Widget build(BuildContext context) {
     info = widget.info;
     return Card(
-        child: Container(
-      color: Colors.white,
-      margin: const EdgeInsets.all(10),
-      child: Row(
-        children: [
-          ComponentAvatar(info.sex),
-          const SizedBox(width: 5),
-          // Flexible(child: Container()),
-          Text(info.title),
-          const SizedBox(width: 5),
-          Text(info.desc, style: const TextStyle(color: Colors.grey, fontSize: 15)),
-        ],
+      child: Container(
+        color: Colors.white,
+        margin: const EdgeInsets.all(10),
+        child: Row(
+          children: [
+            ComponentAvatar(info.sex),
+            const SizedBox(width: 5),
+            Text(info.title),
+            const SizedBox(width: 5),
+            Text(
+              info.desc,
+              style: TextStyle(color: Storage.getSecondaryColor(), fontSize: 15),
+            ),
+          ],
+        ),
       ),
-    ));
+    );
   }
 }

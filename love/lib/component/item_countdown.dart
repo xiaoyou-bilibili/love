@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:love/component/component_avatar.dart';
 import 'package:love/utils/model.dart';
+import 'package:love/utils/storage.dart';
 
 // 倒计时组件
 class ComponentItemCountdown extends StatelessWidget {
@@ -18,18 +19,32 @@ class ComponentItemCountdown extends StatelessWidget {
               ComponentAvatar(countDown.sex),
               Container(
                 margin: const EdgeInsets.all(15),
-                child: Column(children: [
-                  Text(countDown.title,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      countDown.title,
                       style: const TextStyle(
-                          fontSize: 18, fontWeight: FontWeight.bold)),
-                  Text(countDown.time,
-                      style: const TextStyle(color: Colors.grey)),
-                ]),
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    Text(
+                      countDown.time,
+                      style: TextStyle(color: Storage.getSecondaryColor()),
+                    ),
+                  ],
+                ),
               ),
               Flexible(child: Container()),
-              Text(countDown.count,
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(fontSize: 40, color: Colors.red)),
+              Text(
+                countDown.count,
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 40,
+                  color: Storage.getPrimaryColor(),
+                ),
+              ),
             ])));
   }
 }

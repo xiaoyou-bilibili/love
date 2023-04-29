@@ -41,14 +41,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.3.0"
-  bubble_bottom_bar:
-    dependency: "direct main"
-    description:
-      name: bubble_bottom_bar
-      sha256: "1fb10383a271e310c9ee683603bd793c332d907786d8685c4d1ce9fa2628ea56"
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.2.0"
   cached_network_image:
     dependency: "direct main"
     description:

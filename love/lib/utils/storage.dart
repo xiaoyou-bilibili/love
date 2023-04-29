@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:love/utils/http.dart';
 import 'package:love/utils/model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -40,5 +42,16 @@ class Storage {
     final SharedPreferences prefs = await _prefs;
     _sex = value;
     prefs.setInt(_keySex, value);
+  }
+
+  // 设置主题
+  // 获取主题颜色
+  static Color getPrimaryColor() {
+    return const Color.fromRGBO(252, 139, 171, 10);
+  }
+
+  // 获取次要颜色
+  static Color getSecondaryColor() {
+    return const Color.fromRGBO(255, 192, 203, 10);
   }
 }

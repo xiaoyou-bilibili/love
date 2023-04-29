@@ -13,25 +13,29 @@ class ComponentAvatar extends StatelessWidget {
 
     if (sex == 1 || sex == 2) {
       return Container(
-          width: 35,
-          alignment: Alignment.center,
-          child: CircleAvatar(
-              radius: 15,
-              backgroundImage: CachedNetworkImageProvider(
-                  sex == 1 ? setting.manAvatar : setting.womanAvatar)));
+        width: 35,
+        alignment: Alignment.center,
+        child: CircleAvatar(
+          radius: 15,
+          backgroundImage: CachedNetworkImageProvider(
+              sex == 1 ? setting.manAvatar : setting.womanAvatar),
+        ),
+      );
     }
     return SizedBox(
       width: 45,
       child: Stack(children: [
         CircleAvatar(
-            radius: 15,
-            backgroundImage: CachedNetworkImageProvider(setting.manAvatar)),
+          radius: 15,
+          backgroundImage: CachedNetworkImageProvider(setting.manAvatar),
+        ),
         Positioned(
-            left: 15,
-            child: CircleAvatar(
-                radius: 15,
-                backgroundImage:
-                    CachedNetworkImageProvider(setting.womanAvatar)))
+          left: 15,
+          child: CircleAvatar(
+            radius: 15,
+            backgroundImage: CachedNetworkImageProvider(setting.womanAvatar),
+          ),
+        )
       ]),
     );
   }

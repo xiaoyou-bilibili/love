@@ -19,30 +19,35 @@ class _ComponentItemTaskBoxState extends State<ComponentItemTaskBox> {
   _changeCheckState(bool? value) {
     bool done = value ?? false;
     // 调用接口去修改状态
-    ApiService.updateTask(UpdateTaskReq(info.id, done))
-        .then((value) => setState(() {
-              info.done = done;
-            }));
+    ApiService.updateTask(UpdateTaskReq(info.id, done)).then(
+      (value) => setState(() {
+        info.done = done;
+      }),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     info = widget.info;
     return Card(
-        child: Container(
-      color: Colors.white,
-      margin: const EdgeInsets.all(3),
-      child: Row(
-        children: [
-          Checkbox(value: info.done, onChanged: _changeCheckState),
-          const SizedBox(width: 5),
-          Text(info.title,
+      child: Container(
+        color: Colors.white,
+        margin: const EdgeInsets.all(3),
+        child: Row(
+          children: [
+            Checkbox(value: info.done, onChanged: _changeCheckState),
+            const SizedBox(width: 5),
+            Text(
+              info.title,
               style: TextStyle(
-                  decoration: info.done ? TextDecoration.lineThrough : null)),
-          Flexible(child: Container()),
-          ComponentAvatar(info.sex)
-        ],
+                decoration: info.done ? TextDecoration.lineThrough : null,
+              ),
+            ),
+            Flexible(child: Container()),
+            ComponentAvatar(info.sex)
+          ],
+        ),
       ),
-    ));
+    );
   }
 }

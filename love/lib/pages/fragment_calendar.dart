@@ -5,6 +5,7 @@ import 'package:love/pages/fragment.dart';
 import 'package:love/utils/api.dart';
 import 'package:love/utils/model.dart';
 import 'package:love/utils/storage.dart';
+import 'package:love/utils/utils.dart';
 import 'package:table_calendar/table_calendar.dart';
 
 class CalendarFragment extends StatefulWidget implements PageFragment {
@@ -37,8 +38,6 @@ class _CalendarFragmentState extends State<CalendarFragment> {
   // 日程开始时间和结束时间
   DateTime _start = DateTime.now();
   DateTime _end = DateTime.now();
-  // 已经渲染过的不能再次渲染
-  final Set<DateTime> _rendered = {};
 
   @override
   void initState() {
@@ -46,99 +45,74 @@ class _CalendarFragmentState extends State<CalendarFragment> {
     super.initState();
   }
 
-  // 时间格式化
-  String _formatDate(DateTime date) {
-    return date.toString().split(" ")[0];
-  }
-
-  // 时间戳转换
-  int _getUnix(DateTime date) {
-    return date.millisecondsSinceEpoch ~/ 1000;
-  }
-
   void addCalendar() {
     // 日程类型
     final calendarTypeList = ["", "时间段", "大姨妈"];
     // 显示一个弹窗
-    showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            contentPadding: const EdgeInsets.all(2),
-            title: const Text("添加日程"),
-            content: SizedBox(
-                height: 300,
-                child: Column(children: [
-                  BrnTextInputFormItem(
-                    title: "日程标题",
-                    hint: "输入日程标题",
-                    onChanged: (newValue) => _title = newValue,
-                  ),
-                  BrnTextInputFormItem(
-                    title: "备注",
-                    hint: "输入备注",
-                    onChanged: (newValue) => _desc = newValue,
-                  ),
-                  BrnRadioInputFormItem(
-                    title: "日程类型",
-                    options: [calendarTypeList[1], calendarTypeList[2]],
-                    value: calendarTypeList[_type],
-                    onChanged: (oldValue, newValue) =>
-                        _type = newValue == calendarTypeList[1] ? 1 : 2,
-                  ),
-                  BrnTitleFormItem(
-                    title: "时间范围",
-                    subTitle: "${_formatDate(_start)} - ${_formatDate(_end)}",
-                    operationLabel: "设置时间",
-                    onTap: () {
-                      DateTime now = DateTime.now();
-                      BrnDateRangePicker.showDatePicker(context,
-                          minDateTime:
-                              DateTime.parse('${now.year}-01-01 00:00:00'),
-                          maxDateTime:
-                              DateTime.parse('${now.year}-12-31 23:59:59'),
-                          pickerMode: BrnDateTimeRangePickerMode.date,
-                          dateFormat: 'MM月-dd日',
-                          initialStartDateTime: now,
-                          initialEndDateTime: now, onConfirm:
-                              (startDateTime, endDateTime, startlist, endlist) {
-                        _start = startDateTime;
-                        _end = endDateTime;
-                        (context as Element).markNeedsBuild();
-                      });
-                    },
-                  ),
-                ])),
-            actions: <Widget>[
-              //关闭对话框
-              TextButton(
-                  child: const Text("取消"),
-                  onPressed: () => Navigator.of(context).pop()),
-              TextButton(
-                child: const Text("确定", style: TextStyle(color: Colors.blue)),
-                onPressed: () {
-                  Navigator.of(context).pop(true); //关闭对话框
-                  // 构建请求
-                  ApiService.addCalendar(AddCalendarReq(
-                          title: _title,
-                          desc: _desc,
-                          startTime: _getUnix(_start),
-                          endTime: _getUnix(_end),
-                          calendarType: _type,
-                          timestamp: _getUnix(DateTime.now()),
-                          sex: Storage.getSexSync()))
-                      .then((value) =>
-                          {BrnToast.show("添加成功", context), setState(() {})})
-                      .onError((error, stackTrace) =>
-                          {BrnToast.show("错误 $error", context)});
-                },
-              ),
-            ],
-          );
-        });
+    showCustomDialog(
+      context: context,
+      title: "添加日程",
+      children: [
+        BrnTextInputFormItem(
+          title: "日程标题",
+          hint: "输入日程标题",
+          onChanged: (newValue) => _title = newValue,
+        ),
+        BrnTextInputFormItem(
+          title: "备注",
+          hint: "输入备注",
+          onChanged: (newValue) => _desc = newValue,
+        ),
+        BrnRadioInputFormItem(
+          title: "日程类型",
+          options: [calendarTypeList[1], calendarTypeList[2]],
+          value: calendarTypeList[_type],
+          onChanged: (oldValue, newValue) =>
+              _type = newValue == calendarTypeList[1] ? 1 : 2,
+        ),
+        BrnTitleFormItem(
+          title: "时间范围",
+          subTitle: "${formatDate(_start)} - ${formatDate(_end)}",
+          operationLabel: "设置时间",
+          onTap: () {
+            DateTime now = DateTime.now();
+            BrnDateRangePicker.showDatePicker(
+              context,
+              minDateTime: DateTime.parse('${now.year}-01-01 00:00:00'),
+              maxDateTime: DateTime.parse('${now.year}-12-31 23:59:59'),
+              pickerMode: BrnDateTimeRangePickerMode.date,
+              dateFormat: 'MM月-dd日',
+              initialStartDateTime: now,
+              initialEndDateTime: now,
+              onConfirm: (startDateTime, endDateTime, startlist, endlist) {
+                _start = startDateTime;
+                _end = endDateTime;
+                (context as Element).markNeedsBuild();
+              },
+            );
+          },
+        ),
+      ],
+      onConfirm: () {
+        var resp = ApiService.addCalendar(AddCalendarReq(
+          title: _title,
+          desc: _desc,
+          startTime: getUnix(_start),
+          endTime: getUnix(_end),
+          calendarType: _type,
+          timestamp: getUnix(DateTime.now()),
+          sex: Storage.getSexSync(),
+        ));
+        requestProcess(
+          context,
+          resp,
+          () => _getCalendarList(_focusedDay.year, _focusedDay.month),
+        );
+      },
+    );
   }
 
-  // 获取日程
+  // 获取日程列表
   void _getCalendarList(int year, int month) {
     ApiService.getCalendarList("$year", "$month").then((value) {
       setState(() {
@@ -159,8 +133,10 @@ class _CalendarFragmentState extends State<CalendarFragment> {
   void _onDaySelected(DateTime selectedDay, DateTime focusedDay) {
     setState(() {
       _focusedDay = selectedDay;
-      if (_info[_formatDate(selectedDay)] != null) {
-        _current = _info[_formatDate(selectedDay)]!;
+      _start = selectedDay;
+      _end = selectedDay;
+      if (_info[formatDate(selectedDay)] != null) {
+        _current = _info[formatDate(selectedDay)]!;
       } else {
         _current = [];
       }
@@ -173,7 +149,7 @@ class _CalendarFragmentState extends State<CalendarFragment> {
     for (var item in info) {
       Color co = Colors.blue;
       if (item.calendarType == 2) {
-        co = Colors.pink;
+        co = const Color.fromRGBO(252, 139, 171, 10);
       } else if (item.sex == 2) {
         co = Colors.red;
       }
@@ -216,28 +192,54 @@ class _CalendarFragmentState extends State<CalendarFragment> {
         onDaySelected: _onDaySelected,
         calendarBuilders: CalendarBuilders(
           markerBuilder: (context, day, events) {
-            // 渲染过就不再渲染了
-            // if (!_rendered.contains(day)) {
-            String key = _formatDate(day);
+            String key = formatDate(day);
             if (_info.containsKey(key)) {
-              // _rendered.add(day);
               return Positioned(
                 bottom: 1,
-                child: Row(
-                  children: _getCycleContent(_info[key]!),
-                ),
+                child: Row(children: _getCycleContent(_info[key]!)),
               );
             }
-            // }
+          },
+          defaultBuilder: (context, day, focusedDay) {
+            Color defaultColor = Colors.black;
+            DateTime now = DateTime.now();
+            if (day.year == now.year &&
+                day.month == now.month &&
+                day.day == now.day) {
+              defaultColor = Storage.getPrimaryColor();
+            }
+            return Container(
+              margin: const EdgeInsets.all(4),
+              alignment: Alignment.center,
+              child: Text(
+                day.day.toString(),
+                style: TextStyle(color: defaultColor),
+              ),
+            );
+          },
+          todayBuilder: (context, day, focusedDay) {
+            return Container(
+              margin: const EdgeInsets.all(4),
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                color: Storage.getPrimaryColor(),
+                shape: BoxShape.circle,
+              ),
+              child: Text(
+                day.day.toString(),
+                style: const TextStyle(color: Colors.white),
+              ),
+            );
           },
         ),
       ),
       const SizedBox(height: 10),
       Expanded(
         child: ListView(
-            scrollDirection: Axis.vertical,
-            shrinkWrap: true,
-            children: calendarList),
+          scrollDirection: Axis.vertical,
+          shrinkWrap: true,
+          children: calendarList,
+        ),
       )
     ]);
   }

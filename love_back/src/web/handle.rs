@@ -587,10 +587,11 @@ pub async fn get_calendar(
     let mut current = start;
     let calendar_iter = res.unwrap();
     while current <= end {
-        let timestamp = naive_date_to_timestamp(current);
+        let timestamp_start = naive_date_to_timestamp(current);
+        let timestamp_end = naive_date_to_timestamp(current+ Duration::days(1)-Duration::seconds(1));
         for calendar in calendar_iter.iter().clone() {
             // 如果是当天的日程
-            if calendar.start_time <= timestamp && timestamp <= calendar.end_time {
+            if (calendar.start_time >= timestamp_start && calendar.start_time <= timestamp_end) || (calendar.end_time >= timestamp_start && calendar.end_time <= timestamp_end) {
                 result.push(CalendarInfo {
                     id: calendar._id.unwrap().to_hex(),
                     title: calendar.title.to_string(),
@@ -602,7 +603,7 @@ pub async fn get_calendar(
             }
         }
         // 如果是大姨妈
-        if menstruation_start_time <= timestamp && timestamp <= menstruation_end_time {
+        if menstruation_start_time <= timestamp_start && timestamp_start <= menstruation_end_time {
             result.push(CalendarInfo {
                 id: "".to_string(),
                 title: "大姨妈".to_string(),
