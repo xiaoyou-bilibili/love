@@ -30,13 +30,16 @@ class _PageAlbumDetailState extends State<PageAlbumDetail> {
 
   // 添加图片
   void _addImage() {
-    uploadImage().then((url) {
-      var resp = ApiService.albumAddPhoto(
-        widget._id,
-        AlbumPhotoInfo(url: url),
-      );
-      requestProcess(context, resp, _refreshAlbum);
-    });
+    uploadImage(
+      context: context,
+      onSuccess: (url) {
+        var resp = ApiService.albumAddPhoto(
+          widget._id,
+          AlbumPhotoInfo(url: url),
+        );
+        requestProcess(context, resp, _refreshAlbum);
+      },
+    );
   }
 
   // 打开图片
@@ -44,7 +47,8 @@ class _PageAlbumDetailState extends State<PageAlbumDetail> {
     // 构建图片列表
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => PagePhotoView(_album.photos, index)),
+      MaterialPageRoute(
+          builder: (context) => PagePhotoView(_album.photos, index)),
     );
   }
 

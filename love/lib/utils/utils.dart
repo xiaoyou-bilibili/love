@@ -115,12 +115,25 @@ String getOriginImage(String url) {
 }
 
 // 上传图片
-Future<String> uploadImage() async {
+Future<String> uploadImageAsync() async {
   XFile? image = await _picker.pickImage(source: ImageSource.gallery);
   if (image != null) {
     return ApiService.uploadFile(image);
   }
-  throw Exception("未选择图片！");
+  return throw Exception("未选择图片！");
+}
+
+typedef StringCallback = void Function(String url);
+// 上传图片
+void uploadImage({
+  required BuildContext context,
+  required StringCallback onSuccess,
+}) {
+  BrnLoadingDialog.show(context, content: "上传中", barrierDismissible: false);
+  uploadImageAsync()
+      .then((value) => {BrnToast.show("上传成功！", context), onSuccess(value)})
+      .onError((error, stackTrace) => {BrnToast.show("上传失败 $error", context)})
+      .whenComplete(() => BrnLoadingDialog.dismiss(context));
 }
 
 // 保存图片到本地
@@ -140,11 +153,8 @@ Future<void> saveImageAsync(String url) async {
 void saveImage(BuildContext context, String url) {
   BrnLoadingDialog.show(context, content: "下载中", barrierDismissible: false);
   saveImageAsync(url)
-      .then((value) => {
-            BrnToast.show("保存成功！", context),
-            BrnLoadingDialog.dismiss(context),
-          })
-      .onError((error, stackTrace) => {
-            BrnToast.show("保存失败 $error", context),
-          });
+      .then((value) => BrnToast.show("保存成功！", context))
+      .catchError((error) => BrnToast.show("保存失败 $error", context))
+      .whenComplete(() => BrnLoadingDialog.dismiss(context));
+  ;
 }

@@ -21,7 +21,6 @@ class PageEdit extends StatefulWidget {
 }
 
 class _PageEditState extends State<PageEdit> {
-  final ImagePicker _picker = ImagePicker();
   String _id = '';
   String _title = '';
   String _content = '';
@@ -85,18 +84,11 @@ class _PageEditState extends State<PageEdit> {
 
   // 上传图片
   void _uploadImage() {
-    _picker.pickImage(source: ImageSource.gallery).then((image) => {
-          if (image != null)
-            {
-              ApiService.uploadFile(image).then(
-                (value) => {
-                  setState(() {
-                    _content = "$_content\n\n ![图片]($host/$value)";
-                  })
-                },
-              )
-            }
-        });
+    uploadImage(
+      context: context,
+      onSuccess: (url) =>
+          setState(() => _content = "$_content\n\n ![图片]($host/$url)"),
+    );
   }
 
   @override

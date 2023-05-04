@@ -8,7 +8,6 @@ import 'package:love/utils/api.dart';
 import 'package:love/utils/model.dart';
 import 'package:love/utils/storage.dart';
 import 'package:love/utils/utils.dart';
-import 'package:photo_view/photo_view_gallery.dart';
 
 class ComponentItemDynamic extends StatelessWidget {
   final DynamicComment info;

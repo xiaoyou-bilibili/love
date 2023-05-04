@@ -18,10 +18,9 @@ class MoreFragment extends StatefulWidget implements PageFragment {
 }
 
 class _MoreFragmentState extends State<MoreFragment> {
-  late BuildContext _context;
 
   void addCallback() {
-    BrnToast.show("小老弟正在加紧开发中！", _context);
+    BrnToast.show("小老弟正在加紧开发中！", context);
   }
 
   // 渲染菜单
@@ -50,7 +49,6 @@ class _MoreFragmentState extends State<MoreFragment> {
 
   @override
   Widget build(BuildContext context) {
-    _context = context;
     return GridView.count(
       crossAxisCount: 3,
       childAspectRatio: 1,

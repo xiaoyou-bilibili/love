@@ -25,7 +25,6 @@ class DynamicFragment extends StatefulWidget implements PageFragment {
 }
 
 class _DynamicFragmentState extends State<DynamicFragment> {
-  final ImagePicker _picker = ImagePicker();
   final List<String> _images = [];
   String _content = "";
 
@@ -39,14 +38,13 @@ class _DynamicFragmentState extends State<DynamicFragment> {
         }
         children.add(InkWell(
           onTap: () {
-            _picker.pickImage(source: ImageSource.gallery).then((image) => {
-                  image != null
-                      ? ApiService.uploadFile(image).then((value) => {
-                            _images.add(value),
-                            (context as Element).markNeedsBuild()
-                          })
-                      : null
-                });
+            uploadImage(
+              context: context,
+              onSuccess: (url) => {
+                _images.add(url),
+                (context as Element).markNeedsBuild(),
+              },
+            );
           },
           child: const Icon(Icons.cloud_upload, color: Colors.black, size: 80),
         ));
