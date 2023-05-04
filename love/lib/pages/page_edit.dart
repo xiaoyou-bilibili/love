@@ -1,6 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:love/utils/http.dart';
+import 'package:love/utils/utils.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:bruno/bruno.dart';
 import 'package:flutter/material.dart';
@@ -16,12 +17,12 @@ class PageEdit extends StatefulWidget {
   const PageEdit(this._id, {super.key});
 
   @override
-  State<StatefulWidget> createState() => _PageEditState(_id);
+  State<StatefulWidget> createState() => _PageEditState();
 }
 
 class _PageEditState extends State<PageEdit> {
   final ImagePicker _picker = ImagePicker();
-  final String _id;
+  String _id = '';
   String _title = '';
   String _content = '';
   int _timestamp = 0;
@@ -34,6 +35,7 @@ class _PageEditState extends State<PageEdit> {
 
   @override
   void initState() {
+    _id = widget._id;
     // 页面初始化获取一下所有的tag
     ApiService.getNoteTagList().then((tags) => {
           tags.isNotEmpty
@@ -43,11 +45,7 @@ class _PageEditState extends State<PageEdit> {
                 })
               : null
         });
-    super.initState();
-  }
-
-  // 初始化获取笔记的内容
-  _PageEditState(this._id) {
+    // 判断id是否存在
     if (_id != '') {
       ApiService.getNote(_id).then((note) => {
             setState(() {
@@ -60,6 +58,7 @@ class _PageEditState extends State<PageEdit> {
             })
           });
     }
+    super.initState();
   }
 
   void _actionSuccess(BuildContext context) {
@@ -73,7 +72,7 @@ class _PageEditState extends State<PageEdit> {
       tag: _tag,
       title: _title,
       content: _content,
-      timestamp: DateTime.now().millisecondsSinceEpoch ~/ 1000,
+      timestamp: getUnixNow(),
       sex: Storage.getSexSync(),
     );
     if (_id != '') {
@@ -201,7 +200,7 @@ class _PageEditState extends State<PageEdit> {
                   onTap: _uploadImage),
               BrnVerticalIconButton(
                   name: "表格",
-                  iconWidget: const Icon(Icons.table_view),
+                  iconWidget: const Icon(Icons.table_chart),
                   onTap: () => setState(() => _content =
                       "$_content\n\n |标题1|标题2|\n|-----------|-----------|\n|内容1|内容2|")),
               BrnVerticalIconButton(

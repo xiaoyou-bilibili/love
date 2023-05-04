@@ -93,7 +93,7 @@ class _DynamicFragmentState extends State<DynamicFragment> {
                 DynamicInfo info = DynamicInfo(
                   content: _content,
                   images: _images,
-                  timestamp: DateTime.now().millisecondsSinceEpoch ~/ 1000,
+                  timestamp: getUnixNow(),
                   sex: Storage.getSexSync(),
                 );
                 // 构建请求

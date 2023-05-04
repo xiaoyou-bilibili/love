@@ -3,72 +3,62 @@ import 'package:bruno/bruno.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:love/component/component_avatar.dart';
+import 'package:love/pages/page_photo_view.dart';
 import 'package:love/utils/api.dart';
 import 'package:love/utils/model.dart';
-import 'package:love/utils/http.dart' show host;
 import 'package:love/utils/storage.dart';
+import 'package:love/utils/utils.dart';
 import 'package:photo_view/photo_view_gallery.dart';
 
 class ComponentItemDynamic extends StatelessWidget {
-  ComponentItemDynamic(this.info, {super.key});
-
   final DynamicComment info;
   late BuildContext _context;
 
+  ComponentItemDynamic(this.info, {super.key});
+
   // 打开图片
   void _openImage(int index) {
-    // 构建图片列表
-    List<PhotoViewGalleryPageOptions> imgList = [];
-    for (var image in info.dynamicInfo.images) {
-      imgList.add(PhotoViewGalleryPageOptions(
-        imageProvider: CachedNetworkImageProvider("$host/$image"),
-      ));
-    }
-
-    Navigator.push(_context, MaterialPageRoute(
-      builder: (BuildContext context) {
-        return PhotoViewGallery(
-          pageOptions: imgList,
-          pageController: PageController(initialPage: index),
-        );
-      },
-    ));
+    Navigator.push(
+      _context,
+      MaterialPageRoute(
+        builder: (context) => PagePhotoView(info.dynamicInfo.images, index),
+      ),
+    );
   }
 
   // 打开评论
   void _openComment(String id) {
     BrnMiddleInputDialog(
-        title: "评论内容",
-        hintText: '输入评论内容',
-        onConfirm: (value) {
-          ApiService.addComment(CommentInfo(
-            relationId: id,
-            content: value,
-            timestamp: DateTime.now().millisecondsSinceEpoch ~/ 1000,
-            sex: Storage.getSexSync(),
-          )).then((value) {
-            BrnToast.show("评论成功~刷新后生效", _context);
-            Navigator.pop(_context);
-          }).onError((error, stackTrace) {
-            BrnToast.show(error.toString(), _context);
-          });
-        },
-        onCancel: () => Navigator.pop(_context)).show(_context);
+      title: "评论内容",
+      hintText: '输入评论内容',
+      onConfirm: (value) {
+        ApiService.addComment(CommentInfo(
+          relationId: id,
+          content: value,
+          timestamp: getUnixNow(),
+          sex: Storage.getSexSync(),
+        )).then((value) {
+          BrnToast.show("评论成功~刷新后生效", _context);
+          Navigator.pop(_context);
+        }).onError((error, stackTrace) {
+          BrnToast.show(error.toString(), _context);
+        });
+      },
+      onCancel: () => Navigator.pop(_context),
+    ).show(_context);
   }
 
   @override
   Widget build(BuildContext context) {
     _context = context;
-    DateTime timestamp =
-        DateTime.fromMillisecondsSinceEpoch(info.dynamicInfo.timestamp * 1000);
+    DateTime timestamp = unix2DateTime(info.dynamicInfo.timestamp);
     // 组装图片列表，这里替换为压缩后的图片
     List<InkWell> images = [];
     for (var image in info.dynamicInfo.images) {
-      String cache = image.replaceAll("static/", "static/compose/");
       images.add(InkWell(
         onTap: () => _openImage(info.dynamicInfo.images.indexOf(image)),
         child: CachedNetworkImage(
-          imageUrl: "$host/$cache",
+          imageUrl: getCompressImage(image),
           fit: BoxFit.cover, // 设置图片为正方形
           placeholder: (context, url) => const Center(
             child: SizedBox(

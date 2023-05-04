@@ -2,16 +2,16 @@ import 'package:bruno/bruno.dart';
 import 'package:flutter/material.dart';
 import 'package:love/utils/model.dart';
 import 'package:love/utils/storage.dart';
+import 'package:love/utils/utils.dart';
 
-// 代办清单组件
+// 笔记组件
 class ComponentItemNoteBook extends StatelessWidget {
   final NoteInfo info;
   const ComponentItemNoteBook(this.info, {super.key});
 
   @override
   Widget build(BuildContext context) {
-    DateTime timestamp =
-        DateTime.fromMillisecondsSinceEpoch(info.timestamp * 1000);
+    DateTime timestamp = unix2DateTime(info.timestamp);
     return Container(
       color: Colors.white,
       margin: const EdgeInsets.all(2),

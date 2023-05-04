@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:love/component/item_calendar.dart';
 import 'package:love/pages/fragment.dart';
 import 'package:love/utils/api.dart';
+import 'package:love/utils/const.dart';
 import 'package:love/utils/model.dart';
 import 'package:love/utils/storage.dart';
 import 'package:love/utils/utils.dart';
@@ -35,6 +36,8 @@ class _CalendarFragmentState extends State<CalendarFragment> {
   String _desc = "";
   // 日程类型
   int _type = 1;
+  // 性别
+  int _sex = Storage.getSexSync();
   // 日程开始时间和结束时间
   DateTime _start = DateTime.now();
   DateTime _end = DateTime.now();
@@ -68,7 +71,13 @@ class _CalendarFragmentState extends State<CalendarFragment> {
           options: [calendarTypeList[1], calendarTypeList[2]],
           value: calendarTypeList[_type],
           onChanged: (oldValue, newValue) =>
-              _type = newValue == calendarTypeList[1] ? 1 : 2,
+              _type = calendarTypeList.indexOf(newValue!),
+        ),
+        BrnRadioInputFormItem(
+          title: "性别",
+          options: [sexEnum[1], sexEnum[2], sexEnum[3]],
+          value: sexEnum[_sex],
+          onChanged: (oldValue, newValue) => _sex = sexEnum.indexOf(newValue!),
         ),
         BrnTitleFormItem(
           title: "时间范围",
@@ -100,8 +109,8 @@ class _CalendarFragmentState extends State<CalendarFragment> {
           startTime: getUnix(_start),
           endTime: getUnix(_end),
           calendarType: _type,
-          timestamp: getUnix(DateTime.now()),
-          sex: Storage.getSexSync(),
+          timestamp: getUnixNow(),
+          sex: _sex,
         ));
         requestProcess(
           context,
@@ -152,6 +161,8 @@ class _CalendarFragmentState extends State<CalendarFragment> {
         co = const Color.fromRGBO(252, 139, 171, 10);
       } else if (item.sex == 2) {
         co = Colors.red;
+      } else if (item.sex == 3) {
+        co = Colors.purple;
       }
       list.add(Container(
         decoration: BoxDecoration(

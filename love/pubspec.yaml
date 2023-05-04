@@ -55,6 +55,8 @@ dependencies:
   table_calendar: ^3.0.8
   # 图片预览库
   photo_view: ^0.14.0
+  # 图片保存
+  image_gallery_saver: ^1.7.1
 
 
 dev_dependencies:

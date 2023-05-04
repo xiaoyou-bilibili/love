@@ -1,13 +1,12 @@
 import 'package:bruno/bruno.dart';
 import 'package:flutter/material.dart';
-import 'package:love/utils/storage.dart';
 import 'fragment.dart';
 
 class MoreFragment extends StatefulWidget implements PageFragment {
   final GlobalKey _key;
-  Function callback;
+  final Function callback;
 
-  MoreFragment(this._key, this.callback) : super(key: _key);
+  const MoreFragment(this._key, this.callback) : super(key: _key);
 
   @override
   State<StatefulWidget> createState() => _MoreFragmentState();
@@ -40,8 +39,8 @@ class _MoreFragmentState extends State<MoreFragment> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(icon, color: color),
-              Text(title, style: TextStyle(color: color))
+              Icon(icon, color: color, size: 30),
+              Text(title, style: TextStyle(color: color, fontSize: 20))
             ],
           ),
         ),
@@ -53,7 +52,7 @@ class _MoreFragmentState extends State<MoreFragment> {
   Widget build(BuildContext context) {
     _context = context;
     return GridView.count(
-      crossAxisCount: 4,
+      crossAxisCount: 3,
       childAspectRatio: 1,
       mainAxisSpacing: 4,
       crossAxisSpacing: 4,
@@ -70,6 +69,12 @@ class _MoreFragmentState extends State<MoreFragment> {
           Colors.green,
           () => widget.callback(5),
         ),
+        _renderMenu(
+          Icons.photo_album_outlined,
+          "相册",
+          Colors.pinkAccent,
+          () => widget.callback(6),
+        )
       ],
     );
   }

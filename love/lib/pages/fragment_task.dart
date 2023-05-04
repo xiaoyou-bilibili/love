@@ -115,7 +115,7 @@ class _TaskFragmentState extends State<TaskFragment>
           _title,
           _tag,
           Storage.getSexSync(),
-          DateTime.now().millisecondsSinceEpoch ~/ 1000,
+          getUnixNow(),
         ));
         requestProcess(context, resp, () {
           _getTaskList(_tag);

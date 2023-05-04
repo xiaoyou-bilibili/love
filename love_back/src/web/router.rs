@@ -46,6 +46,15 @@ pub fn new_router(db: DbServer, secret: String) -> Router {
         .route("/calender", post(handle::add_calendar))
         // 获取所有日程
         .route("/calender", get(handle::get_calendar))
+        // 新增相册
+        .route("/album", post(handle::add_album))
+        // 获取相册列表
+        .route("/album", get(handle::get_album_list))
+        // 获取相册详情
+        .route("/album/:id", get(handle::get_album_detail))
+        // 相册添加图片
+        .route("/album/:id/photos", post(handle::add_album_photos))
+
 
 
         // 文件上传

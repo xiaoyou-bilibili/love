@@ -1,6 +1,15 @@
+import 'dart:typed_data';
+
 import 'package:bruno/bruno.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:image_gallery_saver/image_gallery_saver.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:love/utils/storage.dart';
+import 'package:love/utils/http.dart' show host;
+import 'package:love/utils/api.dart';
+
+final ImagePicker _picker = ImagePicker();
 
 // color转换为Material color
 MaterialColor createMaterialColor(Color color) {
@@ -82,4 +91,60 @@ String formatDate(DateTime date) {
 // 时间戳转换
 int getUnix(DateTime date) {
   return date.millisecondsSinceEpoch ~/ 1000;
+}
+
+// 获取当前时间的unix时间戳
+int getUnixNow() {
+  return DateTime.now().millisecondsSinceEpoch ~/ 1000;
+}
+
+// 时间戳转时间
+DateTime unix2DateTime(int unix) {
+  return DateTime.fromMillisecondsSinceEpoch(unix * 1000);
+}
+
+// 获取压缩图片地址
+String getCompressImage(String url) {
+  String cache = url.replaceAll("static/", "static/compose/");
+  return "$host/$cache";
+}
+
+// 获取原图地址
+String getOriginImage(String url) {
+  return "$host/$url";
+}
+
+// 上传图片
+Future<String> uploadImage() async {
+  XFile? image = await _picker.pickImage(source: ImageSource.gallery);
+  if (image != null) {
+    return ApiService.uploadFile(image);
+  }
+  throw Exception("未选择图片！");
+}
+
+// 保存图片到本地
+Future<void> saveImageAsync(String url) async {
+  Response resp = await ApiService.client.downloadFile(url);
+  final result = await ImageGallerySaver.saveImage(
+    Uint8List.fromList(resp.data),
+    quality: 100,
+    name: "${getUnixNow()}",
+  );
+  if (!result["isSuccess"]) {
+    throw Exception("保存失败");
+  }
+}
+
+// 保存图片到本地
+void saveImage(BuildContext context, String url) {
+  BrnLoadingDialog.show(context, content: "下载中", barrierDismissible: false);
+  saveImageAsync(url)
+      .then((value) => {
+            BrnToast.show("保存成功！", context),
+            BrnLoadingDialog.dismiss(context),
+          })
+      .onError((error, stackTrace) => {
+            BrnToast.show("保存失败 $error", context),
+          });
 }

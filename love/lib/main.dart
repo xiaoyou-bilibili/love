@@ -4,6 +4,7 @@ import 'package:bruno/bruno.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:love/pages/fragment.dart';
+import 'package:love/pages/fragment_album.dart';
 import 'package:love/pages/fragment_dynamic.dart';
 import 'package:love/pages/fragment_calendar.dart';
 import 'package:love/pages/fragment_home.dart';
@@ -65,7 +66,17 @@ class _MyHomePageState extends State<MyHomePage> {
   final GlobalKey _key = GlobalKey();
   int _index = 0;
   int _currentIndex = 0; // 当前底部导航栏下标
-  final List<String> _titles = [appName, "日程", "动态", "功能", "计划", "笔记"];
+  final List<String> _titles = [appName, "日程", "动态", "功能", "计划", "笔记","相册"];
+  // 所有功能对应的新增按钮
+  final List<IconData> _icons = [
+    Icons.more_time_rounded,
+    Icons.edit_calendar_outlined,
+    Icons.add_photo_alternate_outlined,
+    Icons.add,
+    Icons.add_task,
+    Icons.note_add_outlined,
+    Icons.add_a_photo_outlined
+  ];
   String _title = appName;
   late PageFragment fragment;
 
@@ -135,6 +146,9 @@ class _MyHomePageState extends State<MyHomePage> {
       case 5:
         fragment = NotebookFragment(_key);
         break;
+      case 6:
+        fragment = AlbumFragment(_key);
+        break;
     }
     return Scaffold(
       appBar: BrnAppBar(
@@ -152,7 +166,7 @@ class _MyHomePageState extends State<MyHomePage> {
         ),
         actions: BrnIconAction(
           iconPressed: _addCallback,
-          child: const Icon(Icons.add, color: Colors.white),
+          child: Icon(_icons[_index], color: Colors.white),
         ),
       ),
       body: fragment as StatefulWidget,
@@ -176,7 +190,7 @@ class _MyHomePageState extends State<MyHomePage> {
           ),
           BrnBottomTabBarItem(
             icon: Icon(Icons.dashboard_customize),
-            title: Text("功能"),
+            title: Text("更多"),
           ),
         ],
       ),

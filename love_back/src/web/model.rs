@@ -164,3 +164,29 @@ pub struct CalendarInfo {
     pub calendar_type: i32, // 日历类型
     pub sex: i32,           // 身份 1 男  2 女
 }
+
+// 添加相册
+#[derive(Debug, Serialize, Deserialize)]
+pub struct Album {
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub _id: Option<ObjectId>, // object id
+    pub title: String,       // 标题
+    pub photos: Vec<String>, // 相册列表
+    pub sex: i32,            // 身份 1 男  2 女
+    pub timestamp: i64,      // 创建时间
+}
+
+// 获取相册列表
+#[derive(Debug, Serialize, Deserialize)]
+pub struct AlbumInfo {
+    pub id: String,      // 相册id
+    pub title: String,   // 标题
+    pub preview: String, // 预览图
+    pub count: i32,      // 图片数量
+}
+
+// 获取相册列表
+#[derive(Debug, Serialize, Deserialize)]
+pub struct AlbumPhotoInfo {
+    pub url: String, // 图片地址
+}

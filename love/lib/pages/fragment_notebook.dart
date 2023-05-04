@@ -32,9 +32,10 @@ class _NotebookFragmentState extends State<NotebookFragment>
 
   // 跳转到添加文章的页面
   void addNote() {
-    Navigator.push(context,
-            MaterialPageRoute(builder: (context) => const PageEdit('')))
-        .then((value) => setState(() {}));
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const PageEdit('')),
+    ).then((value) => setState(() {}));
   }
 
   @override

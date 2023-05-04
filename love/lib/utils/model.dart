@@ -6,20 +6,22 @@ class CountDown {
   String count;
   int sex;
 
-  CountDown(
-      {required this.id,
-      required this.title,
-      required this.time,
-      required this.count,
-      required this.sex});
+  CountDown({
+    required this.id,
+    required this.title,
+    required this.time,
+    required this.count,
+    required this.sex,
+  });
 
   factory CountDown.fromJson(Map<String, dynamic> json) {
     return CountDown(
-        id: json['id'],
-        title: json['title'],
-        time: json['time'],
-        count: json['count'],
-        sex: json['sex']);
+      id: json['id'],
+      title: json['title'],
+      time: json['time'],
+      count: json['count'],
+      sex: json['sex'],
+    );
   }
 }
 
@@ -37,7 +39,7 @@ class AddCountDownReq {
       "title": title,
       "time": time,
       "count_down_type": countDownType,
-      "sex": sex
+      "sex": sex,
     };
     return map;
   }
@@ -55,8 +57,14 @@ class TaskInfo {
   TaskInfo(this.id, this.title, this.tag, this.done, this.sex, this.timestamp);
 
   factory TaskInfo.fromJson(Map<String, dynamic> json) {
-    return TaskInfo(json['id'], json['title'], json['tag'], json['done'],
-        json['sex'], json['timestamp']);
+    return TaskInfo(
+      json['id'],
+      json['title'],
+      json['tag'],
+      json['done'],
+      json['sex'],
+      json['timestamp'],
+    );
   }
 }
 
@@ -105,20 +113,22 @@ class DynamicInfo {
   int timestamp;
   int sex;
 
-  DynamicInfo(
-      {this.id = "",
-      required this.content,
-      required this.images,
-      required this.timestamp,
-      required this.sex});
+  DynamicInfo({
+    this.id = "",
+    required this.content,
+    required this.images,
+    required this.timestamp,
+    required this.sex,
+  });
 
   factory DynamicInfo.fromJson(Map<String, dynamic> json) {
     return DynamicInfo(
-        id: json['id'],
-        content: json['content'],
-        images: List.from(json["images"]),
-        timestamp: json['timestamp'],
-        sex: json['sex']);
+      id: json['id'],
+      content: json['content'],
+      images: List.from(json["images"]),
+      timestamp: json['timestamp'],
+      sex: json['sex'],
+    );
   }
 
   Map toJson() {
@@ -140,22 +150,24 @@ class NoteInfo {
   int timestamp;
   int sex;
 
-  NoteInfo(
-      {this.id = "",
-      required this.title,
-      required this.content,
-      required this.timestamp,
-      required this.tag,
-      required this.sex});
+  NoteInfo({
+    this.id = "",
+    required this.title,
+    required this.content,
+    required this.timestamp,
+    required this.tag,
+    required this.sex,
+  });
 
   factory NoteInfo.fromJson(Map<String, dynamic> json) {
     return NoteInfo(
-        id: json['id'],
-        title: json['title'],
-        content: json['content'],
-        tag: json['tag'],
-        timestamp: json['timestamp'],
-        sex: json['sex']);
+      id: json['id'],
+      title: json['title'],
+      content: json['content'],
+      tag: json['tag'],
+      timestamp: json['timestamp'],
+      sex: json['sex'],
+    );
   }
 
   Map toJson() {
@@ -173,7 +185,7 @@ class NoteInfo {
   }
 }
 
-// 应用设施
+// 应用设置
 class AppSetting {
   String manAvatar;
   String womanAvatar;
@@ -201,20 +213,22 @@ class CommentInfo {
   int timestamp;
   int sex;
 
-  CommentInfo(
-      {this.id = "",
-      required this.relationId,
-      required this.content,
-      required this.timestamp,
-      required this.sex});
+  CommentInfo({
+    this.id = "",
+    required this.relationId,
+    required this.content,
+    required this.timestamp,
+    required this.sex,
+  });
 
   factory CommentInfo.fromJson(Map<String, dynamic> json) {
     return CommentInfo(
-        id: json['id'],
-        relationId: json['relation_id'],
-        content: json['content'],
-        timestamp: json['timestamp'],
-        sex: json['sex']);
+      id: json['id'],
+      relationId: json['relation_id'],
+      content: json['content'],
+      timestamp: json['timestamp'],
+      sex: json['sex'],
+    );
   }
 
   Map toJson() {
@@ -244,8 +258,9 @@ class DynamicComment {
       commentList.add(CommentInfo.fromJson(item));
     }
     return DynamicComment(
-        dynamicInfo: DynamicInfo.fromJson(json['dynamic']),
-        comments: commentList);
+      dynamicInfo: DynamicInfo.fromJson(json['dynamic']),
+      comments: commentList,
+    );
   }
 }
 
@@ -259,14 +274,15 @@ class AddCalendarReq {
   int sex;
   int timestamp;
 
-  AddCalendarReq(
-      {required this.title,
-      required this.desc,
-      required this.startTime,
-      required this.endTime,
-      required this.calendarType,
-      required this.timestamp,
-      required this.sex});
+  AddCalendarReq({
+    required this.title,
+    required this.desc,
+    required this.startTime,
+    required this.endTime,
+    required this.calendarType,
+    required this.timestamp,
+    required this.sex,
+  });
 
   Map toJson() {
     return {
@@ -276,7 +292,7 @@ class AddCalendarReq {
       "end_time": endTime,
       "calendar_type": calendarType,
       "timestamp": timestamp,
-      "sex": sex
+      "sex": sex,
     };
   }
 }
@@ -290,21 +306,102 @@ class CalendarInfo {
   int calendarType;
   int sex;
 
-  CalendarInfo(
-      {required this.id,
-        required this.title,
-        required this.desc,
-        required this.date,
-        required this.calendarType,
-        required this.sex});
+  CalendarInfo({
+    required this.id,
+    required this.title,
+    required this.desc,
+    required this.date,
+    required this.calendarType,
+    required this.sex,
+  });
 
   factory CalendarInfo.fromJson(Map<String, dynamic> json) {
     return CalendarInfo(
-        id: json['id'],
-        title: json['title'],
-        desc: json['desc'],
-        date: json['date'],
-        calendarType: json['calendar_type'],
-        sex: json['sex']);
+      id: json['id'],
+      title: json['title'],
+      desc: json['desc'],
+      date: json['date'],
+      calendarType: json['calendar_type'],
+      sex: json['sex'],
+    );
+  }
+}
+
+// 相册数据
+class AlbumPhotoInfo {
+  String url; // 图片地址
+
+  AlbumPhotoInfo({
+    required this.url,
+  });
+
+  factory AlbumPhotoInfo.fromJson(Map<String, dynamic> json) {
+    return AlbumPhotoInfo(
+      url: json['url'],
+    );
+  }
+
+  Map toJson() {
+    return {
+      "url": url,
+    };
+  }
+}
+
+// 添加相册
+class Album {
+  String title;
+  List<String> photos = [];
+  int sex;
+  int timestamp;
+
+  Album({
+    required this.title,
+    required this.timestamp,
+    required this.sex,
+    required this.photos,
+  });
+
+  Map toJson() {
+    return {
+      "title": title,
+      "photos": photos,
+      "timestamp": timestamp,
+      "sex": sex
+    };
+  }
+
+  factory Album.fromJson(Map<String, dynamic> json) {
+    Album album = Album(
+      title: json['title'],
+      sex: json['sex'],
+      photos: List.from(json["photos"]),
+      timestamp: json['timestamp'],
+    );
+    return album;
+  }
+}
+
+// 获取相册列表
+class AlbumInfo {
+  String id;
+  String title;
+  String preview;
+  int count;
+
+  AlbumInfo({
+    required this.id,
+    required this.title,
+    required this.preview,
+    required this.count,
+  });
+
+  factory AlbumInfo.fromJson(Map<String, dynamic> json) {
+    return AlbumInfo(
+      id: json['id'],
+      title: json['title'],
+      preview: json['preview'],
+      count: json['count'],
+    );
   }
 }

@@ -1,21 +1,22 @@
+use crate::lib::utils::is_overlap;
 use crate::lib::{config::config::get_config, utils::naive_date_to_timestamp};
 use crate::web::model::{
-    AddCountDownReq, AppSetting, AppState, Calendar, CalendarInfo, CommentInfo, CountDown,
-    DynamicComment, DynamicInfo, HandleResult, NoteInfo, Response, TaskInfo, UpdateTaskReq,
+    AddCountDownReq, Album, AlbumInfo, AlbumPhotoInfo, AppSetting, AppState, Calendar,
+    CalendarInfo, CommentInfo, CountDown, DynamicComment, DynamicInfo, HandleResult, NoteInfo,
+    Response, TaskInfo, UpdateTaskReq,
 };
 use axum::extract::Multipart;
 use axum::extract::{Extension, Path, Query};
 use axum::Json;
 use chrono::{Datelike, Duration, Local, NaiveDate};
 use image::{load_from_memory, ImageOutputFormat};
-use log::{error, info};
+use log::error;
 use mongodb::bson::{doc, Document};
 use mongodb::options::FindOptions;
 use serde::{Deserialize, Serialize};
-use std::cmp::Ordering;
 use std::collections::HashMap;
 use std::fs::File;
-use std::io::{empty, Cursor, Write};
+use std::io::{Cursor, Write};
 use std::ops::Add;
 
 // 倒计时
@@ -25,6 +26,7 @@ const COLLECTION_DYNAMIC: &str = "dynamic";
 const COLLECTION_NOTE: &str = "note";
 const COLLECTION_COMMENT: &str = "comment";
 const COLLECTION_CALENDAR: &str = "calendar";
+const COLLECTION_ALBUM: &str = "album";
 
 // 响应测试
 pub async fn pong() -> HandleResult<String> {
@@ -151,7 +153,7 @@ pub async fn get_count_down(
                 return b.diff.cmp(&a.diff);
             }
             a.diff.cmp(&b.diff)
-        }
+        };
     });
 
     Response::ok(result)
@@ -404,8 +406,9 @@ pub async fn get_note_list(
         req._id = None;
         // 字符串超过200个就要截取
         if utf8_slice::len(req.content.as_str()) > 200 {
-            req.content = utf8_slice::till(req.content.as_str(), 200).replace("\n", " ");
+            req.content = utf8_slice::till(req.content.as_str(), 200).to_string();
         }
+        req.content = req.content.replace("\n", " ");
         result.push(req);
     }
     Response::ok(result)
@@ -588,10 +591,13 @@ pub async fn get_calendar(
     let calendar_iter = res.unwrap();
     while current <= end {
         let timestamp_start = naive_date_to_timestamp(current);
-        let timestamp_end = naive_date_to_timestamp(current+ Duration::days(1)-Duration::seconds(1));
+        let timestamp_end = naive_date_to_timestamp(current.add(Duration::days(1))) - 1;
         for calendar in calendar_iter.iter().clone() {
-            // 如果是当天的日程
-            if (calendar.start_time >= timestamp_start && calendar.start_time <= timestamp_end) || (calendar.end_time >= timestamp_start && calendar.end_time <= timestamp_end) {
+            // 判断一下是否是当天的日程，只需要判断两个区间是否有重叠即可
+            if is_overlap(
+                (calendar.start_time, calendar.end_time),
+                (timestamp_start, timestamp_end),
+            ) {
                 result.push(CalendarInfo {
                     id: calendar._id.unwrap().to_hex(),
                     title: calendar.title.to_string(),
@@ -617,6 +623,97 @@ pub async fn get_calendar(
     }
 
     return Response::ok(result);
+}
+
+// 新增相册
+pub async fn add_album(
+    Extension(app_state): Extension<AppState>,
+    Json(payload): Json<Album>,
+) -> HandleResult<String> {
+    // 添加到数据库
+    let res = app_state.db.insert_one(COLLECTION_ALBUM, payload).await;
+    return match res {
+        Ok(uuid) => Response::ok(uuid),
+        Err(e) => Response::err(e.to_string().as_str()),
+    };
+}
+
+// 获取相册列表
+pub async fn get_album_list(
+    Extension(app_state): Extension<AppState>,
+) -> HandleResult<Vec<AlbumInfo>> {
+    let mut result = Vec::new();
+    // 获取所有倒计时
+    let res = app_state
+        .db
+        .find_data::<Album>(
+            COLLECTION_ALBUM,
+            None,
+            Some(FindOptions::builder().sort(doc! {"timestamp": -1 }).build()),
+        )
+        .await;
+    if let Err(e) = res {
+        return Response::err(e.to_string().as_str());
+    }
+    for item in res.unwrap() {
+        let mut info = AlbumInfo {
+            id: item._id.unwrap().to_hex(),
+            title: item.title,
+            preview: "".to_string(),
+            count: item.photos.len() as i32,
+        };
+        if let Some(pre) = item.photos.last() {
+            info.preview = pre.to_string();
+        }
+
+        result.push(info);
+    }
+    Response::ok(result)
+}
+
+// 获取相册详情
+pub async fn get_album_detail(
+    Extension(app_state): Extension<AppState>,
+    id: Path<String>,
+) -> HandleResult<Album> {
+    let res = app_state
+        .db
+        .find_data::<Album>(
+            COLLECTION_ALBUM,
+            Some(doc! {"_id": app_state.db.str_to_object_id(id.as_str()).unwrap()}),
+            None,
+        )
+        .await;
+    if let Err(e) = res {
+        return Response::err(e.to_string().as_str());
+    }
+    if let Ok(mut result) = res {
+        if !result.is_empty() {
+            return Response::ok(result.remove(0));
+        }
+    }
+    return Response::err("未找到相册");
+}
+
+// 相册添加图片
+pub async fn add_album_photos(
+    Extension(app_state): Extension<AppState>,
+    id: Path<String>,
+    Json(payload): Json<AlbumPhotoInfo>,
+) -> HandleResult<String> {
+    // 添加到数据库
+    let res = app_state
+        .db
+        .update_data::<Album>(
+            COLLECTION_ALBUM,
+            doc! {"_id": app_state.db.str_to_object_id(id.as_str()).unwrap()},
+            doc! {"$push": {"photos": payload.url}},
+        )
+        .await;
+    return match res {
+        Ok(_) => Response::ok2(),
+        Err(e) => Response::err(e.to_string().as_str()),
+    };
 }
 
 #[cfg(test)]
