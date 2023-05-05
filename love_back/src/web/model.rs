@@ -188,5 +188,5 @@ pub struct AlbumInfo {
 // 获取相册列表
 #[derive(Debug, Serialize, Deserialize)]
 pub struct AlbumPhotoInfo {
-    pub url: String, // 图片地址
+    pub urls: Vec<String>, // 待新增的图片列表
 }

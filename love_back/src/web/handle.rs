@@ -689,7 +689,9 @@ pub async fn get_album_detail(
     }
     if let Ok(mut result) = res {
         if !result.is_empty() {
-            return Response::ok(result.remove(0));
+            let mut album = result.remove(0);
+            album.photos.reverse();
+            return Response::ok(album);
         }
     }
     return Response::err("未找到相册");
@@ -707,7 +709,28 @@ pub async fn add_album_photos(
         .update_data::<Album>(
             COLLECTION_ALBUM,
             doc! {"_id": app_state.db.str_to_object_id(id.as_str()).unwrap()},
-            doc! {"$push": {"photos": payload.url}},
+            doc! {"$push": {"photos": {"$each": payload.urls}}},
+        )
+        .await;
+    return match res {
+        Ok(_) => Response::ok2(),
+        Err(e) => Response::err(e.to_string().as_str()),
+    };
+}
+
+// 相册删除图片
+pub async fn delete_album_photos(
+    Extension(app_state): Extension<AppState>,
+    id: Path<String>,
+    Json(payload): Json<AlbumPhotoInfo>,
+) -> HandleResult<String> {
+    // 添加到数据库
+    let res = app_state
+        .db
+        .update_data::<Album>(
+            COLLECTION_ALBUM,
+            doc! {"_id": app_state.db.str_to_object_id(id.as_str()).unwrap()},
+            doc! {"$pull": {"photos": {"$in": payload.urls}}},
         )
         .await;
     return match res {

@@ -53,8 +53,9 @@ pub fn new_router(db: DbServer, secret: String) -> Router {
         // 获取相册详情
         .route("/album/:id", get(handle::get_album_detail))
         // 相册添加图片
-        .route("/album/:id/photos", post(handle::add_album_photos))
-
+        .route("/album/:id/photos", put(handle::add_album_photos))
+        // 相册删除图片
+        .route("/album/:id/photos/del", put(handle::delete_album_photos))
 
 
         // 文件上传

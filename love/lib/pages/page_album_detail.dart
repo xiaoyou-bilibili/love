@@ -35,9 +35,31 @@ class _PageAlbumDetailState extends State<PageAlbumDetail> {
       onSuccess: (url) {
         var resp = ApiService.albumAddPhoto(
           widget._id,
-          AlbumPhotoInfo(url: url),
+          AlbumPhotoInfo(url: [url]),
         );
         requestProcess(context, resp, _refreshAlbum);
+      },
+    );
+  }
+
+  // 删除图片
+  void _deleteImage(String url) {
+    BrnDialogManager.showConfirmDialog(
+      context,
+      cancel: "取消",
+      confirm: "确定",
+      title: "确定删除？",
+      onConfirm: () {
+        var resp = ApiService.albumDelPhoto(
+          widget._id,
+          AlbumPhotoInfo(url: [url]),
+        );
+        Navigator.pop(context);
+        Navigator.pop(context);
+        requestProcess(context, resp, _refreshAlbum);
+      },
+      onCancel: () {
+        Navigator.pop(context);
       },
     );
   }
@@ -48,7 +70,8 @@ class _PageAlbumDetailState extends State<PageAlbumDetail> {
     Navigator.push(
       context,
       MaterialPageRoute(
-          builder: (context) => PagePhotoView(_album.photos, index)),
+        builder: (context) => PagePhotoView(_album.photos, index, _deleteImage),
+      ),
     );
   }
 
@@ -82,7 +105,7 @@ class _PageAlbumDetailState extends State<PageAlbumDetail> {
       body: Container(
         margin: const EdgeInsets.all(10),
         child: GridView.count(
-          crossAxisCount: 4,
+          crossAxisCount: 3,
           childAspectRatio: 1,
           mainAxisSpacing: 4,
           crossAxisSpacing: 4,

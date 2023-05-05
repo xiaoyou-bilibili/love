@@ -168,6 +168,11 @@ class ApiService {
 
   // 相册添加图片
   static Future<void> albumAddPhoto(String id, AlbumPhotoInfo photo) async {
-    client.post("$base/album/$id/photos", photo);
+    client.put("$base/album/$id/photos", photo);
+  }
+
+  // 相册添加图片
+  static Future<void> albumDelPhoto(String id, AlbumPhotoInfo photo) async {
+    client.put("$base/album/$id/photos/del", photo);
   }
 }

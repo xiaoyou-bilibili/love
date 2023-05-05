@@ -1,8 +1,7 @@
 import 'package:bruno/bruno.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:love/utils/api.dart';
-import 'package:love/utils/model.dart';
+import 'package:love/utils/const.dart';
 import 'package:love/utils/storage.dart';
 import 'package:love/utils/utils.dart';
 import 'package:photo_view/photo_view_gallery.dart';
@@ -12,8 +11,10 @@ class PagePhotoView extends StatefulWidget {
   final int _index;
   // 图片列表
   final List<String> _imgList;
+  // 删除回调
+  final StringCallback? _callback;
 
-  const PagePhotoView(this._imgList, this._index, {super.key});
+  const PagePhotoView(this._imgList, this._index, this._callback, {super.key});
 
   @override
   State<StatefulWidget> createState() => _PagePhotoViewState();
@@ -21,7 +22,7 @@ class PagePhotoView extends StatefulWidget {
 
 class _PagePhotoViewState extends State<PagePhotoView> {
   int _index = 0;
-  List<PhotoViewGalleryPageOptions> _imgList = [];
+  final List<PhotoViewGalleryPageOptions> _imgList = [];
 
   @override
   void initState() {
@@ -47,13 +48,25 @@ class _PagePhotoViewState extends State<PagePhotoView> {
           "${_index + 1}/${_imgList.length}",
           style: const TextStyle(color: Colors.white),
         ),
-        actions: BrnIconAction(
-          iconPressed: () => saveImage(context, widget._imgList[_index]),
-          child: const Icon(
-            Icons.download_outlined,
-            color: Colors.white,
+        actions: [
+          Visibility(
+            visible: widget._callback != null,
+            child: BrnIconAction(
+              iconPressed: () => widget._callback!(widget._imgList[_index]),
+              child: const Icon(
+                Icons.delete_outline_outlined,
+                color: Colors.white,
+              ),
+            ),
           ),
-        ),
+          BrnIconAction(
+            iconPressed: () => saveImage(context, widget._imgList[_index]),
+            child: const Icon(
+              Icons.download_outlined,
+              color: Colors.white,
+            ),
+          ),
+        ],
       ),
       body: PhotoViewGallery(
         pageOptions: _imgList,

@@ -20,7 +20,7 @@ class ComponentItemDynamic extends StatelessWidget {
     Navigator.push(
       _context,
       MaterialPageRoute(
-        builder: (context) => PagePhotoView(info.dynamicInfo.images, index),
+        builder: (context) => PagePhotoView(info.dynamicInfo.images, index, null),
       ),
     );
   }

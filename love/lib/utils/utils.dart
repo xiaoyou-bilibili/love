@@ -8,6 +8,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:love/utils/storage.dart';
 import 'package:love/utils/http.dart' show host;
 import 'package:love/utils/api.dart';
+import 'package:love/utils/const.dart';
 
 final ImagePicker _picker = ImagePicker();
 
@@ -123,7 +124,6 @@ Future<String> uploadImageAsync() async {
   return throw Exception("未选择图片！");
 }
 
-typedef StringCallback = void Function(String url);
 // 上传图片
 void uploadImage({
   required BuildContext context,

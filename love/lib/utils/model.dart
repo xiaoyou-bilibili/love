@@ -329,7 +329,7 @@ class CalendarInfo {
 
 // 相册数据
 class AlbumPhotoInfo {
-  String url; // 图片地址
+  List<String> url; // 图片地址
 
   AlbumPhotoInfo({
     required this.url,
@@ -337,13 +337,13 @@ class AlbumPhotoInfo {
 
   factory AlbumPhotoInfo.fromJson(Map<String, dynamic> json) {
     return AlbumPhotoInfo(
-      url: json['url'],
+      url: List.from(json['urls']),
     );
   }
 
   Map toJson() {
     return {
-      "url": url,
+      "urls": url,
     };
   }
 }
