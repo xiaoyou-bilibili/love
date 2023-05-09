@@ -1,6 +1,7 @@
 import 'dart:typed_data';
 
 import 'package:bruno/bruno.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:image_gallery_saver/image_gallery_saver.dart';
@@ -134,6 +135,21 @@ void uploadImage({
       .then((value) => {BrnToast.show("上传成功！", context), onSuccess(value)})
       .onError((error, stackTrace) => {BrnToast.show("上传失败 $error", context)})
       .whenComplete(() => BrnLoadingDialog.dismiss(context));
+}
+
+// 上传多张图片
+Future<List<String>> uploadImages({required ProcessCallback callback}) async {
+  List<XFile> images = await _picker.pickMultiImage();
+  List<String> urls = [];
+  if (images.isNotEmpty) {
+    for (int i = 0; i < images.length; i++) {
+      callback(i + 1, images.length);
+      String url = await ApiService.uploadFile(images[i]);
+      urls.add(url);
+    }
+    return urls;
+  }
+  return throw Exception("未选择图片！");
 }
 
 // 保存图片到本地

@@ -130,7 +130,7 @@ class _MyHomePageState extends State<MyHomePage> {
         _currentIndex = _index;
         break;
       case 1:
-        fragment = AlbumFragment(_key);
+        fragment = CalendarFragment(_key);
         _currentIndex = _index;
         break;
       case 2:

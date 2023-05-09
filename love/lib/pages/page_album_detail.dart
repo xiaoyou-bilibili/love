@@ -6,7 +6,6 @@ import 'package:love/utils/api.dart';
 import 'package:love/utils/model.dart';
 import 'package:love/utils/storage.dart';
 import 'package:love/utils/utils.dart';
-import 'package:photo_view/photo_view_gallery.dart';
 
 class PageAlbumDetail extends StatefulWidget {
   // 相册id
@@ -30,16 +29,17 @@ class _PageAlbumDetailState extends State<PageAlbumDetail> {
 
   // 添加图片
   void _addImage() {
-    uploadImage(
-      context: context,
-      onSuccess: (url) {
-        var resp = ApiService.albumAddPhoto(
-          widget._id,
-          AlbumPhotoInfo(url: [url]),
-        );
-        requestProcess(context, resp, _refreshAlbum);
-      },
-    );
+    uploadImages(callback: (int current, int total) {
+      BrnLoadingDialog.dismiss(context);
+      BrnLoadingDialog.show(context,
+          content: "$current-$total", barrierDismissible: false);
+    }).then((urls) {
+      var resp = ApiService.albumAddPhoto(
+        widget._id,
+        AlbumPhotoInfo(url: urls),
+      );
+      requestProcess(context, resp, _refreshAlbum);
+    }).whenComplete(() => BrnLoadingDialog.dismiss(context));
   }
 
   // 删除图片
@@ -54,8 +54,8 @@ class _PageAlbumDetailState extends State<PageAlbumDetail> {
           widget._id,
           AlbumPhotoInfo(url: [url]),
         );
-        Navigator.pop(context);
-        Navigator.pop(context);
+        resp.whenComplete(
+            () => {Navigator.pop(context), Navigator.pop(context)});
         requestProcess(context, resp, _refreshAlbum);
       },
       onCancel: () {
@@ -113,7 +113,9 @@ class _PageAlbumDetailState extends State<PageAlbumDetail> {
             _album.photos.length,
             (index) => InkWell(
               child: CachedNetworkImage(
-                fit: BoxFit.cover,
+                fit: BoxFit.fill,
+                memCacheWidth: 500,
+                memCacheHeight: 500,
                 imageUrl: getCompressImage(_album.photos[index]),
               ),
               onTap: () => _openImage(index),

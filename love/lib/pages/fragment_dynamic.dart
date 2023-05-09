@@ -1,7 +1,6 @@
 import 'package:bruno/bruno.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:love/component/item_dynamic.dart';
 import 'package:love/utils/api.dart';
 import 'package:love/utils/model.dart';
@@ -38,13 +37,14 @@ class _DynamicFragmentState extends State<DynamicFragment> {
         }
         children.add(InkWell(
           onTap: () {
-            uploadImage(
-              context: context,
-              onSuccess: (url) => {
-                _images.add(url),
-                (context as Element).markNeedsBuild(),
-              },
-            );
+            uploadImages(callback: (int current, int total) {
+              BrnLoadingDialog.dismiss(context);
+              BrnLoadingDialog.show(context,
+                  content: "$current-$total", barrierDismissible: false);
+            }).then((urls) {
+              _images.addAll(urls);
+              (context as Element).markNeedsBuild();
+            }).whenComplete(() => BrnLoadingDialog.dismiss(context));
           },
           child: const Icon(Icons.cloud_upload, color: Colors.black, size: 80),
         ));
