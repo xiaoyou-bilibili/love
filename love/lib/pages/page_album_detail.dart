@@ -1,6 +1,6 @@
 import 'package:bruno/bruno.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:love/component/component_cache_img.dart';
 import 'package:love/pages/page_photo_view.dart';
 import 'package:love/utils/api.dart';
 import 'package:love/utils/model.dart';
@@ -29,10 +29,10 @@ class _PageAlbumDetailState extends State<PageAlbumDetail> {
 
   // 添加图片
   void _addImage() {
-    uploadImages(callback: (int current, int total) {
+    uploadImages(callback: (int current) {
       BrnLoadingDialog.dismiss(context);
       BrnLoadingDialog.show(context,
-          content: "$current-$total", barrierDismissible: false);
+          content: "$current%", barrierDismissible: false);
     }).then((urls) {
       var resp = ApiService.albumAddPhoto(
         widget._id,
@@ -112,12 +112,7 @@ class _PageAlbumDetailState extends State<PageAlbumDetail> {
           children: List.generate(
             _album.photos.length,
             (index) => InkWell(
-              child: CachedNetworkImage(
-                fit: BoxFit.fill,
-                memCacheWidth: 500,
-                memCacheHeight: 500,
-                imageUrl: getCompressImage(_album.photos[index]),
-              ),
+              child: ComponentCacheImage(_album.photos[index]),
               onTap: () => _openImage(index),
             ),
           ),

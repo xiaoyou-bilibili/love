@@ -60,6 +60,9 @@ pub fn new_router(db: DbServer, secret: String) -> Router {
 
         // 文件上传
         .route("/file/upload", post(handle::upload_file))
+        .route("/img/upload", post(handle::upload_file))
+        // 获取图片高度信息
+        .route("/img/info", get(handle::get_img_info))
         // 全局状态共享
         .layer(Extension(AppState { db }))
         // 自定义认证中间件

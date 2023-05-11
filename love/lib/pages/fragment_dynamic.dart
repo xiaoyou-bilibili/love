@@ -37,10 +37,10 @@ class _DynamicFragmentState extends State<DynamicFragment> {
         }
         children.add(InkWell(
           onTap: () {
-            uploadImages(callback: (int current, int total) {
+            uploadImages(callback: (int current) {
               BrnLoadingDialog.dismiss(context);
               BrnLoadingDialog.show(context,
-                  content: "$current-$total", barrierDismissible: false);
+                  content: "$current%", barrierDismissible: false);
             }).then((urls) {
               _images.addAll(urls);
               (context as Element).markNeedsBuild();

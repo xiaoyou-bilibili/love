@@ -42,3 +42,7 @@ serde_yaml = "0.9.19"
 image = "0.24.6"
 # utf8截取库
 utf8_slice = "1.0.0"
+# 内存缓存
+lru = "0.10.0"
+# 全局变量
+lazy_static = "1.4.0"

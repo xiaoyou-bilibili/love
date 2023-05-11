@@ -405,3 +405,21 @@ class AlbumInfo {
     );
   }
 }
+
+// 获取相册列表
+class ImageInfo {
+  int width;
+  int height;
+
+  ImageInfo({
+    required this.width,
+    required this.height,
+  });
+
+  factory ImageInfo.fromJson(Map<String, dynamic> json) {
+    return ImageInfo(
+      width: json['width'],
+      height: json['height'],
+    );
+  }
+}

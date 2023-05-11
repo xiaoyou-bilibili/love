@@ -1,7 +1,6 @@
 import 'dart:typed_data';
 
 import 'package:bruno/bruno.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:image_gallery_saver/image_gallery_saver.dart';
@@ -143,7 +142,7 @@ Future<List<String>> uploadImages({required ProcessCallback callback}) async {
   List<String> urls = [];
   if (images.isNotEmpty) {
     for (int i = 0; i < images.length; i++) {
-      callback(i + 1, images.length);
+      callback((((i + 1)/ images.length)*100).ceil());
       String url = await ApiService.uploadFile(images[i]);
       urls.add(url);
     }

@@ -3,6 +3,7 @@ import 'package:bruno/bruno.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:love/component/component_avatar.dart';
+import 'package:love/component/component_cache_img.dart';
 import 'package:love/pages/page_photo_view.dart';
 import 'package:love/utils/api.dart';
 import 'package:love/utils/model.dart';
@@ -20,7 +21,8 @@ class ComponentItemDynamic extends StatelessWidget {
     Navigator.push(
       _context,
       MaterialPageRoute(
-        builder: (context) => PagePhotoView(info.dynamicInfo.images, index, null),
+        builder: (context) =>
+            PagePhotoView(info.dynamicInfo.images, index, null),
       ),
     );
   }
@@ -55,20 +57,8 @@ class ComponentItemDynamic extends StatelessWidget {
     List<InkWell> images = [];
     for (var image in info.dynamicInfo.images) {
       images.add(InkWell(
-        onTap: () => _openImage(info.dynamicInfo.images.indexOf(image)),
-        child: CachedNetworkImage(
-          imageUrl: getCompressImage(image),
-          fit: BoxFit.cover, // 设置图片为正方形
-          placeholder: (context, url) => const Center(
-            child: SizedBox(
-              width: 50,
-              height: 50,
-              child: CircularProgressIndicator(),
-            ),
-          ),
-          errorWidget: (context, url, error) => const Icon(Icons.error),
-        ),
-      ));
+          onTap: () => _openImage(info.dynamicInfo.images.indexOf(image)),
+          child: ComponentCacheImage(image)));
     }
     // 拼装评论列表
     List<Widget> comments = [];
@@ -108,14 +98,11 @@ class ComponentItemDynamic extends StatelessWidget {
           const SizedBox(height: 10),
           Text(info.dynamicInfo.content),
           const SizedBox(height: 10),
-          GridView(
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 3,
-              mainAxisSpacing: 5,
-              crossAxisSpacing: 5,
-              childAspectRatio: 1,
-            ),
-            scrollDirection: Axis.vertical,
+          GridView.count(
+            crossAxisCount: 3,
+            childAspectRatio: 1,
+            mainAxisSpacing: 4,
+            crossAxisSpacing: 4,
             shrinkWrap: true,
             children: images,
           ),

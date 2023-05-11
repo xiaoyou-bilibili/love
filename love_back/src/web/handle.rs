@@ -2,14 +2,14 @@ use crate::lib::utils::is_overlap;
 use crate::lib::{config::config::get_config, utils::naive_date_to_timestamp};
 use crate::web::model::{
     AddCountDownReq, Album, AlbumInfo, AlbumPhotoInfo, AppSetting, AppState, Calendar,
-    CalendarInfo, CommentInfo, CountDown, DynamicComment, DynamicInfo, HandleResult, NoteInfo,
-    Response, TaskInfo, UpdateTaskReq,
+    CalendarInfo, CommentInfo, CountDown, DynamicComment, DynamicInfo, HandleResult, ImageInfo,
+    NoteInfo, Response, TaskInfo, UpdateTaskReq,
 };
 use axum::extract::Multipart;
 use axum::extract::{Extension, Path, Query};
 use axum::Json;
 use chrono::{Datelike, Duration, Local, NaiveDate};
-use image::{load_from_memory, ImageOutputFormat};
+use image::{load_from_memory, GenericImageView, ImageOutputFormat};
 use log::error;
 use mongodb::bson::{doc, Document};
 use mongodb::options::FindOptions;
@@ -18,6 +18,12 @@ use std::collections::HashMap;
 use std::fs::File;
 use std::io::{Cursor, Write};
 use std::ops::Add;
+use std::path::Path as FilePath;
+use lazy_static::lazy_static;
+use lru::LruCache;
+use std::num::NonZeroUsize;
+use std::sync::mpsc::channel;
+use std::sync::Mutex;
 
 // 倒计时
 const COLLECTION_COUNT_DOWN: &str = "count_down";
@@ -27,6 +33,11 @@ const COLLECTION_NOTE: &str = "note";
 const COLLECTION_COMMENT: &str = "comment";
 const COLLECTION_CALENDAR: &str = "calendar";
 const COLLECTION_ALBUM: &str = "album";
+
+// 变量
+lazy_static! {
+    static ref IMG_SIZE_CACHE: Mutex<LruCache<String, ImageInfo>> = Mutex::new(LruCache::new(NonZeroUsize::new(2048).unwrap()));
+}
 
 // 响应测试
 pub async fn pong() -> HandleResult<String> {
@@ -736,6 +747,30 @@ pub async fn delete_album_photos(
     return match res {
         Ok(_) => Response::ok2(),
         Err(e) => Response::err(e.to_string().as_str()),
+    };
+}
+
+// 获取图片信息
+pub async fn get_img_info(Query(args): Query<HashMap<String, String>>) -> HandleResult<ImageInfo> {
+    let url = args.get("url");
+    if let None = url {
+        return Response::err("参数错误");
+    }
+    let mut cache = IMG_SIZE_CACHE.lock().unwrap();
+    // 判断缓存中是否存在
+    if cache.get(url.unwrap()).is_some() {
+        let info = cache.get(url.unwrap()).unwrap();
+        return Response::ok(ImageInfo {..*info });
+    }
+    let img_path = FilePath::new(url.unwrap());
+    let file = image::open(img_path);
+    return if let Ok(img) = file {
+        let (width, height) = img.dimensions();
+        // 缓存当前数据
+        cache.put(url.unwrap().to_string(), ImageInfo { width, height });
+        Response::ok(ImageInfo { width, height })
+    } else {
+        Response::err("文件不存在")
     };
 }
 

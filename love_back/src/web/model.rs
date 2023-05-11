@@ -190,3 +190,16 @@ pub struct AlbumInfo {
 pub struct AlbumPhotoInfo {
     pub urls: Vec<String>, // 待新增的图片列表
 }
+
+// 图片信息
+#[derive(Debug, Serialize, Deserialize)]
+pub struct ImageInfo {
+    pub width: u32, // 宽度
+    pub height: u32, // 高度
+}
+
+// 获取图片信息请求
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct GetImageInfoReq {
+    pub url: String, // 宽度
+}

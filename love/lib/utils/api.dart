@@ -110,7 +110,7 @@ class ApiService {
   static Future<String> uploadFile(XFile image) async {
     var bytes = await image.readAsBytes();
     String data = await client.postFrom(
-        "$base/file/upload",
+        "$base/img/upload",
         FormData.fromMap({
           "file": MultipartFile.fromBytes(bytes, filename: image.name),
         }));
@@ -174,5 +174,11 @@ class ApiService {
   // 相册添加图片
   static Future<void> albumDelPhoto(String id, AlbumPhotoInfo photo) async {
     client.put("$base/album/$id/photos/del", photo);
+  }
+
+  // 获取图片信息
+  static Future<ImageInfo> getImageInfo(String url) async {
+    Map<String, dynamic> data = await client.get("$base/img/info?url=$url");
+    return ImageInfo.fromJson(data);
   }
 }
