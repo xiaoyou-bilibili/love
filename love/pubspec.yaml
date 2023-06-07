@@ -31,12 +31,11 @@ dependencies:
   flutter:
     sdk: flutter
   cupertino_icons: ^1.0.2
-  # 图片滚动条
-  flutter_swiper: ^1.1.6
   # 动画布局
   flutter_staggered_animations: ^1.0.0
-  # ui组件库
-  bruno: ^3.3.0
+  # ui组件库(使用本地的，避免错误)
+  bruno: 
+    path: plugins/bruno
   flutter_localizations: # 多语言支持
     sdk: flutter
   # 网络请求
@@ -60,6 +59,9 @@ dependencies:
   # 运行环境判断
   universal_platform: ^1.0.0+1
 
+# 解决版本问题
+dependency_overrides:
+  intl: ^0.18.1
 
 dev_dependencies:
   flutter_test:

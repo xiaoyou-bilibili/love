@@ -1,4 +1,4 @@
-import 'dart:html' show AnchorElement, Blob, Url;
+// import 'dart:html' show AnchorElement, Blob, Url;
 import 'dart:typed_data';
 import 'package:bruno/bruno.dart';
 import 'package:dio/dio.dart';
@@ -177,10 +177,10 @@ void saveImage(BuildContext context, String url) {
 }
 
 Future<void> webDownloadImage(String url) async {
-  Response resp = await ApiService.client.downloadFile(url);
-  final bytes = resp.data;
-  var anchor = AnchorElement(href: Url.createObjectUrlFromBlob(Blob([bytes])));
-  anchor.download = 'image.png';
-  anchor.click();
-  Url.revokeObjectUrl(url);
+  // Response resp = await ApiService.client.downloadFile(url);
+  // final bytes = resp.data;
+  // var anchor = AnchorElement(href: Url.createObjectUrlFromBlob(Blob([bytes])));
+  // anchor.download = 'image.png';
+  // anchor.click();
+  // Url.revokeObjectUrl(url);
 }
