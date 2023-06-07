@@ -1,8 +1,8 @@
 import 'package:dio/dio.dart';
 import 'package:image_picker/image_picker.dart';
 
-import 'model.dart';
-import 'http.dart';
+import 'package:love/utils/model.dart';
+import 'package:love/utils/http.dart';
 
 class ApiService {
   static final HttpClient client = HttpClient();

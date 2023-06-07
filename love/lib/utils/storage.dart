@@ -10,7 +10,9 @@ class Storage {
       SharedPreferences.getInstance();
 
   static const String _keySex = "sex";
+  static const String _keySecret = "secret";
   static int _sex = 0;
+  static String _secret = "";
   static AppSetting _appSetting = AppSetting(manAvatar: '', womanAvatar: '');
 
   // 获取应用设置
@@ -30,10 +32,16 @@ class Storage {
     return _sex;
   }
 
+  // 获取密钥
+  static String getSecretSync() {
+    return _secret;
+  }
+
   // 获取性别
-  static Future<int> getSex() async {
+  static Future<int> getSexAndSecret() async {
     final SharedPreferences prefs = await _prefs;
     _sex = prefs.getInt(_keySex) ?? 0;
+    _secret = prefs.getString(_keySecret) ?? "";
     return _sex;
   }
 
@@ -42,6 +50,13 @@ class Storage {
     final SharedPreferences prefs = await _prefs;
     _sex = value;
     prefs.setInt(_keySex, value);
+  }
+
+  // 设置密钥
+  static Future<void> setSecret(String value) async {
+    final SharedPreferences prefs = await _prefs;
+    _secret = value;
+    prefs.setString(_keySecret, value);
   }
 
   // 设置主题

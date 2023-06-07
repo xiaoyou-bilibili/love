@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:bruno/bruno.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -66,7 +64,7 @@ class _MyHomePageState extends State<MyHomePage> {
   final GlobalKey _key = GlobalKey();
   int _index = 0;
   int _currentIndex = 0; // 当前底部导航栏下标
-  final List<String> _titles = [appName, "日程", "动态", "功能", "计划", "笔记","相册"];
+  final List<String> _titles = [appName, "日程", "动态", "功能", "计划", "笔记", "相册"];
   // 所有功能对应的新增按钮
   final List<IconData> _icons = [
     Icons.more_time_rounded,
@@ -78,6 +76,9 @@ class _MyHomePageState extends State<MyHomePage> {
     Icons.add_a_photo_outlined
   ];
   String _title = appName;
+  String _secret = "";
+  int _sex = 1;
+  final _sexEnum = ["", "男", "女"];
   late PageFragment fragment;
 
   // 首页切换界面
@@ -90,27 +91,42 @@ class _MyHomePageState extends State<MyHomePage> {
   // 进入页面首先判断一下用户是否设置性别
   @override
   void initState() {
-    ApiService.getAppSetting().then((value) => {
-          debugPrint("应用设置 ${jsonEncode(value)}"),
-          Storage.setAppSetting(value)
-        });
-    Storage.getSex().then((value) => {
-          debugPrint("用户性别 $value"),
-          if (value == 0)
-            {
-              BrnDialogManager.showMoreButtonDialog(
-                context,
-                title: "设置性别",
-                actions: ['男', '女'],
-                barrierDismissible: false,
-                message: "检测到你第一次使用，请设置性别",
-                indexedActionClickCallback: (index) => {
-                  Storage.setSex(index + 1),
-                  Navigator.of(context).pop(true) //关闭对话框
-                },
-              )
-            }
-        });
+    Storage.getSexAndSecret().then((value) {
+      debugPrint("用户性别 $value");
+      if (value == 0) {
+        // 显示一个弹窗
+        showCustomDialog(
+          context: context,
+          title: "登录",
+          children: [
+            BrnRadioInputFormItem(
+              title: "性别",
+              options: [_sexEnum[1], _sexEnum[2]],
+              value: _sexEnum[1],
+              onChanged: (oldValue, newValue) {
+                _sex = _sexEnum.indexOf(newValue ?? "");
+              },
+            ),
+            BrnTextInputFormItem(
+              title: "密码",
+              hint: "登录密码",
+              onChanged: (newValue) => _secret = newValue,
+            )
+          ],
+          onConfirm: () {
+            Storage.setSex(_sex);
+            Storage.setSecret(_secret);
+            BrnToast.show("设置成功，刷新界面后生效", context);
+          },
+        );
+      }
+      // 获取应用设置
+      ApiService.getAppSetting().then((value) {
+        Storage.setAppSetting(value);
+        // 刷新页面
+        _changePage(0);
+      });
+    });
     super.initState();
   }
 

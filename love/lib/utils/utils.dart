@@ -1,5 +1,5 @@
+import 'dart:html' show AnchorElement, Blob, Url;
 import 'dart:typed_data';
-
 import 'package:bruno/bruno.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
@@ -9,6 +9,7 @@ import 'package:love/utils/storage.dart';
 import 'package:love/utils/http.dart' show host;
 import 'package:love/utils/api.dart';
 import 'package:love/utils/const.dart';
+import 'package:universal_platform/universal_platform.dart';
 
 final ImagePicker _picker = ImagePicker();
 
@@ -142,7 +143,7 @@ Future<List<String>> uploadImages({required ProcessCallback callback}) async {
   List<String> urls = [];
   if (images.isNotEmpty) {
     for (int i = 0; i < images.length; i++) {
-      callback((((i + 1)/ images.length)*100).ceil());
+      callback((((i + 1) / images.length) * 100).ceil());
       String url = await ApiService.uploadFile(images[i]);
       urls.add(url);
     }
@@ -167,9 +168,19 @@ Future<void> saveImageAsync(String url) async {
 // 保存图片到本地
 void saveImage(BuildContext context, String url) {
   BrnLoadingDialog.show(context, content: "下载中", barrierDismissible: false);
-  saveImageAsync(url)
+  Future<void> resp =
+      UniversalPlatform.isWeb ? webDownloadImage(url) : saveImageAsync(url);
+  resp
       .then((value) => BrnToast.show("保存成功！", context))
       .catchError((error) => BrnToast.show("保存失败 $error", context))
       .whenComplete(() => BrnLoadingDialog.dismiss(context));
-  ;
+}
+
+Future<void> webDownloadImage(String url) async {
+  Response resp = await ApiService.client.downloadFile(url);
+  final bytes = resp.data;
+  var anchor = AnchorElement(href: Url.createObjectUrlFromBlob(Blob([bytes])));
+  anchor.download = 'image.png';
+  anchor.click();
+  Url.revokeObjectUrl(url);
 }

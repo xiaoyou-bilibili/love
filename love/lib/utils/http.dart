@@ -1,13 +1,14 @@
 import 'package:dio/dio.dart';
+import 'package:love/utils/storage.dart';
 
 // 服务器地址
 const String host = "http://127.0.0.1:3000";
 
 class HttpClient {
   Dio dio = Dio();
-  final Map<String, String> _headers = {
-    "token": "xiaoyou" // 请求token
-  };
+  Map<String, String> _headers() => {
+        "token": Storage.getSecretSync(),
+      };
 
   dynamic responseInterceptor(Response response) {
     if (response.statusCode != 200) {
@@ -28,7 +29,7 @@ class HttpClient {
   Future<dynamic> get(String url) async {
     Response response = await dio.get(
       host + url,
-      options: Options(headers: _headers),
+      options: Options(headers: _headers()),
     );
     return responseInterceptor(response);
   }
@@ -38,7 +39,7 @@ class HttpClient {
     Response response = await dio.post(
       host + url,
       data: body,
-      options: Options(contentType: Headers.jsonContentType, headers: _headers),
+      options: Options(contentType: Headers.jsonContentType, headers: _headers()),
     );
     return responseInterceptor(response);
   }
@@ -50,7 +51,7 @@ class HttpClient {
       data: body,
       options: Options(
         contentType: Headers.multipartFormDataContentType,
-        headers: _headers,
+        headers: _headers(),
       ),
     );
     return responseInterceptor(response);
@@ -63,7 +64,7 @@ class HttpClient {
       data: body,
       options: Options(
         contentType: Headers.jsonContentType,
-        headers: _headers,
+        headers: _headers(),
       ),
     );
     return responseInterceptor(response);

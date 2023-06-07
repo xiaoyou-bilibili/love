@@ -57,6 +57,8 @@ dependencies:
   photo_view: ^0.14.0
   # 图片保存
   image_gallery_saver: ^1.7.1
+  # 运行环境判断
+  universal_platform: ^1.0.0+1
 
 
 dev_dependencies:
