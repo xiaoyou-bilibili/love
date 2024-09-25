@@ -34,7 +34,7 @@ dependencies:
   # 动画布局
   flutter_staggered_animations: ^1.0.0
   # ui组件库(使用本地的，避免错误)
-  bruno: 
+  bruno:
     path: plugins/bruno
   flutter_localizations: # 多语言支持
     sdk: flutter
