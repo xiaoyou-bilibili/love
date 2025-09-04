@@ -128,12 +128,11 @@ class GifImageState extends State<GifImage> {
       dynamic data;
       AssetBundleImageKey key = await provider.obtainKey(ImageConfiguration());
       data = await key.bundle.load(key.name);
-      ui.Codec codec = await usePaintingBinding()
-          .instantiateImageCodec(data.buffer.asUint8List());
-      for (int i = 0; i < codec.frameCount; i++) {
-        FrameInfo frameInfo = await codec.getNextFrame();
-        infos.add(ImageInfo(image: frameInfo.image));
-      }
+      // ui.Codec codec = await usePaintingBinding().instantiateImageCodec(data.buffer.asUint8List());
+      // for (int i = 0; i < codec.frameCount; i++) {
+      //   FrameInfo frameInfo = await codec.getNextFrame();
+      //   infos.add(ImageInfo(image: frameInfo.image));
+      // }
     }
     _images.value = infos;
   }

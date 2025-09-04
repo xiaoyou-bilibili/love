@@ -271,8 +271,8 @@ class _ExpansionElementState extends State<ExpansionElementWidget>
 
     /// title 文字颜色
     _headerColorTween
-      ..begin = theme.textTheme.subtitle1!.color
-      ..end = theme.textTheme.subtitle1!.color;
+      ..begin = theme.textTheme.bodyLarge!.color
+      ..end = theme.textTheme.bodyLarge!.color;
 
     /// 展开收起图标颜色
     _iconColorTween
